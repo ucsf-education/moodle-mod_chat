@@ -34,8 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2017 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lib_test extends \advanced_testcase {
-
+final class lib_test extends \advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
@@ -60,8 +59,8 @@ class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => usergetmidnight(time())));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => usergetmidnight(time())]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -95,8 +94,8 @@ class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => usergetmidnight(time())));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => usergetmidnight(time())]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -122,8 +121,8 @@ class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-            'chattime' => time() - DAYSECS));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+            'chattime' => time() - DAYSECS]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -150,8 +149,8 @@ class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => time() - DAYSECS));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => time() - DAYSECS]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -177,8 +176,8 @@ class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-            'chattime' => usergetmidnight(time())));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+            'chattime' => usergetmidnight(time())]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -209,8 +208,8 @@ class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => usergetmidnight(time())));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => usergetmidnight(time())]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -240,8 +239,8 @@ class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-            'chattime' => usergetmidnight(time()) + (23 * HOURSECS)));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+            'chattime' => usergetmidnight(time()) + (23 * HOURSECS)]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -272,8 +271,8 @@ class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => usergetmidnight(time()) + (23 * HOURSECS)));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => usergetmidnight(time()) + (23 * HOURSECS)]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -303,8 +302,8 @@ class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-            'chattime' => time() + DAYSECS));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+            'chattime' => time() + DAYSECS]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -335,8 +334,8 @@ class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a chat.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => time() + DAYSECS));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => time() + DAYSECS]);
 
         // Create a calendar event.
         $event = $this->create_action_event($course->id, $chat->id, CHAT_EVENT_TYPE_CHATTIME);
@@ -390,13 +389,13 @@ class lib_test extends \advanced_testcase {
         $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student', (object)['timezone' => $timezone2]);
 
         // Create a chat.
-        $chat1 = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => mktime(1, 0, 0)));    // This is always yesterday in timezone1 time
+        $chat1 = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => mktime(1, 0, 0)]);    // This is always yesterday in timezone1 time
                                                     // and always today in timezone2 time.
 
         // Create a chat.
-        $chat2 = $this->getDataGenerator()->create_module('chat', array('course' => $course->id,
-                'chattime' => mktime(1, 0, 0) + DAYSECS));  // This is always today in timezone1 time
+        $chat2 = $this->getDataGenerator()->create_module('chat', ['course' => $course->id,
+                'chattime' => mktime(1, 0, 0) + DAYSECS]);  // This is always today in timezone1 time
                                                             // and always tomorrow in timezone2 time.
 
         // Create calendar events for the 2 chats above.
@@ -646,16 +645,22 @@ class lib_test extends \advanced_testcase {
         $this->setAdminUser();
 
         // Create the activity.
-        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id),
-            array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $chat = $this->getDataGenerator()->create_module(
+            'chat',
+            ['course' => $course->id],
+            ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]
+        );
 
         // Get some additional data.
         $cm = get_coursemodule_from_instance('chat', $chat->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $chat->id,
-            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $chat->id,
+            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Mark the activity as completed.
         $completion = new \completion_info($course);
@@ -676,9 +681,12 @@ class lib_test extends \advanced_testcase {
         $this->setAdminUser();
 
         // Create the activity.
-        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id),
-            array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $chat = $this->getDataGenerator()->create_module(
+            'chat',
+            ['course' => $course->id],
+            ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]
+        );
 
         // Enrol a student in the course.
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
@@ -687,8 +695,11 @@ class lib_test extends \advanced_testcase {
         $cm = get_coursemodule_from_instance('chat', $chat->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $chat->id,
-            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $chat->id,
+            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Mark the activity as completed for the student.
         $completion = new \completion_info($course);
@@ -739,10 +750,10 @@ class lib_test extends \advanced_testcase {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_chat');
         // Create an instance as a user without the calendar capabilities.
         $this->setUser($user);
-        $params = array(
+        $params = [
             'course' => $course->id,
             'chattime' => time() + 500,
-        );
+        ];
         $generator->create_instance($params);
     }
 }

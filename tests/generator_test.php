@@ -23,8 +23,7 @@ namespace mod_chat;
  * @copyright  2013 Frédéric Massart
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class generator_test extends \advanced_testcase {
-
+final class generator_test extends \advanced_testcase {
     /**
      * Setup testcase.
      */
@@ -42,16 +41,15 @@ class generator_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $this->assertFalse($DB->record_exists('chat', array('course' => $course->id)));
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
-        $this->assertEquals(1, $DB->count_records('chat', array('course' => $course->id)));
-        $this->assertTrue($DB->record_exists('chat', array('course' => $course->id)));
-        $this->assertTrue($DB->record_exists('chat', array('id' => $chat->id)));
+        $this->assertFalse($DB->record_exists('chat', ['course' => $course->id]));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
+        $this->assertEquals(1, $DB->count_records('chat', ['course' => $course->id]));
+        $this->assertTrue($DB->record_exists('chat', ['course' => $course->id]));
+        $this->assertTrue($DB->record_exists('chat', ['id' => $chat->id]));
 
-        $params = array('course' => $course->id, 'name' => 'One more chat');
+        $params = ['course' => $course->id, 'name' => 'One more chat'];
         $chat = $this->getDataGenerator()->create_module('chat', $params);
-        $this->assertEquals(2, $DB->count_records('chat', array('course' => $course->id)));
-        $this->assertEquals('One more chat', $DB->get_field_select('chat', 'name', 'id = :id', array('id' => $chat->id)));
+        $this->assertEquals(2, $DB->count_records('chat', ['course' => $course->id]));
+        $this->assertEquals('One more chat', $DB->get_field_select('chat', 'name', 'id = :id', ['id' => $chat->id]));
     }
-
 }

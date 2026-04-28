@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$chattheme_cfg = new stdClass();
-$chattheme_cfg->avatar = true;
-$chattheme_cfg->align  = true;
-$chattheme_cfg->event_message = <<<TEMPLATE
+$chatthemecfg = new stdClass();
+$chatthemecfg->avatar = true;
+$chatthemecfg->align  = true;
+$chatthemecfg->event_message = <<<TEMPLATE
 <div class="chat-event">
 <span class="time">___time___</span>
 <a target='_blank' href="___senderprofile___">___sender___</a>
 <span class="event">___event___</span>
 </div>
 TEMPLATE;
-$chattheme_cfg->user_message_left = <<<TEMPLATE
+$chatthemecfg->user_message_left = <<<TEMPLATE
 <div class='chat-message ___mymessageclass___'>
     <div class="left">
         <span class="text triangle-border left">___message___</span>
@@ -36,7 +36,7 @@ $chattheme_cfg->user_message_left = <<<TEMPLATE
     </div>
 </div>
 TEMPLATE;
-$chattheme_cfg->user_message_right = <<<TEMPLATE
+$chatthemecfg->user_message_right = <<<TEMPLATE
 <div class='chat-message ___mymessageclass___'>
     <div class="right">
         <span class="text triangle-border right">___message___</span>

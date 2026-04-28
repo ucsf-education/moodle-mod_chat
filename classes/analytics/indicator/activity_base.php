@@ -34,15 +34,14 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class activity_base extends \core_analytics\local\indicator\community_of_inquiry_activity {
-
     /**
      * feedback_viewed_events
      *
      * @return string[]
      */
     protected function feedback_viewed_events() {
-        return array('\mod_chat\event\course_module_viewed', '\mod_chat\event\message_sent',
-            '\mod_chat\event\sessions_viewed');
+        return ['\mod_chat\event\course_module_viewed', '\mod_chat\event\message_sent',
+            '\mod_chat\event\sessions_viewed'];
     }
 
     /**
@@ -51,7 +50,7 @@ abstract class activity_base extends \core_analytics\local\indicator\community_o
      * @return string[]
      */
     protected function feedback_replied_events() {
-        return array('\mod_chat\event\message_sent');
+        return ['\mod_chat\event\message_sent'];
     }
 
     /**

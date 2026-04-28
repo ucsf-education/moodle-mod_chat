@@ -23,14 +23,14 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$tasks = array(
-    array(
+$tasks = [
+    [
         'classname' => '\mod_chat\task\cron_task',
         'blocking' => 0,
         'minute' => '*/5',
         'hour' => '*',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
-    )
-);
+        'dayofweek' => '*',
+    ],
+];

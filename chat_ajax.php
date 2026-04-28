@@ -16,7 +16,7 @@
 
 define('AJAX_SCRIPT', true);
 
-require(__DIR__.'/../../config.php');
+require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 
 $action       = optional_param('action', '', PARAM_ALPHANUM);
@@ -31,13 +31,13 @@ if (!confirm_sesskey()) {
     throw new moodle_exception('invalidsesskey', 'error');
 }
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new moodle_exception('notlogged', 'chat');
 }
-if (!$chat = $DB->get_record('chat', array('id' => $chatuser->chatid))) {
+if (!$chat = $DB->get_record('chat', ['id' => $chatuser->chatid])) {
     throw new moodle_exception('invaliduserid', 'error');
 }
-if (!$course = $DB->get_record('course', array('id' => $chat->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chat->course])) {
     throw new moodle_exception('invalidcourseid', 'error');
 }
 if (!$cm = get_coursemodule_from_instance('chat', $chat->id, $course->id)) {
@@ -50,7 +50,7 @@ if (!isloggedin()) {
 
 // Set up $PAGE so that format_text will work properly.
 $PAGE->set_cm($cm, $course, $chat);
-$PAGE->set_url('/mod/chat/chat_ajax.php', array('chat_sid' => $chatsid));
+$PAGE->set_url('/mod/chat/chat_ajax.php', ['chat_sid' => $chatsid]);
 
 require_login($course, false, $cm);
 
@@ -59,7 +59,7 @@ require_capability('mod/chat:chat', $context);
 
 ob_start();
 header('Expires: Sun, 28 Dec 1997 09:32:45 GMT');
-header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 header('Content-Type: text/html; charset=utf-8');
@@ -78,11 +78,10 @@ switch ($action) {
         $chatmessage = clean_text($chatmessage, FORMAT_MOODLE);
 
         if (!empty($beepid)) {
-            $chatmessage = 'beep '.$beepid;
+            $chatmessage = 'beep ' . $beepid;
         }
 
         if (!empty($chatmessage)) {
-
             chat_send_chatmessage($chatuser, $chatmessage, 0, $cm);
 
             $chatuser->lastmessageping = time() - 2;
@@ -143,7 +142,7 @@ switch ($action) {
             $response['users'] = $users;
         }
 
-        $DB->set_field('chat_users', 'lastping', time(), array('id' => $chatuser->id));
+        $DB->set_field('chat_users', 'lastping', time(), ['id' => $chatuser->id]);
 
         $response['lasttime'] = $chatnewlasttime;
         $response['lastrow']  = $chatnewrow;

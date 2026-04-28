@@ -36,8 +36,7 @@ require_once($CFG->dirroot . '/mod/chat/lib.php');
  * @copyright  2013 Frédéric Massart
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class events_test extends \advanced_testcase {
-
+final class events_test extends \advanced_testcase {
     /**
      * Setup testcase.
      */
@@ -56,8 +55,8 @@ class events_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
-        $cm = $DB->get_record('course_modules', array('id' => $chat->cmid));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
+        $cm = $DB->get_record('course_modules', ['id' => $chat->cmid]);
 
         // Logging in first user to the chat.
         $this->setUser($user1->id);
@@ -68,8 +67,8 @@ class events_test extends \advanced_testcase {
         $sid2 = chat_login_user($chat->id, 'ajax', 0, $course);
 
         // Getting the chatuser record.
-        $chatuser1 = $DB->get_record('chat_users', array('sid' => $sid1));
-        $chatuser2 = $DB->get_record('chat_users', array('sid' => $sid2));
+        $chatuser1 = $DB->get_record('chat_users', ['sid' => $sid1]);
+        $chatuser2 = $DB->get_record('chat_users', ['sid' => $sid2]);
 
         $sink = $this->redirectEvents();
 
@@ -115,16 +114,16 @@ class events_test extends \advanced_testcase {
         // let's just check that the event contains the expected basic information.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($chat->cmid),
             'objectid' => $chat->id,
-            'other' => array(
+            'other' => [
                 'start' => 1234,
-                'end' => 5678
-            )
-        );
+                'end' => 5678,
+            ],
+        ];
         $event = \mod_chat\event\sessions_viewed::create($params);
         $event->add_record_snapshot('chat', $chat);
         $sink = $this->redirectEvents();
@@ -149,9 +148,9 @@ class events_test extends \advanced_testcase {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
 
-        $params = array(
-            'context' => \context_course::instance($course->id)
-        );
+        $params = [
+            'context' => \context_course::instance($course->id),
+        ];
         $event = \mod_chat\event\course_module_instance_list_viewed::create($params);
         $sink = $this->redirectEvents();
         $event->trigger();
@@ -166,19 +165,19 @@ class events_test extends \advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
         $cm = get_coursemodule_from_instance('chat', $chat->id);
         $context = \context_module::instance($cm->id);
 
-        $params = array(
+        $params = [
             'objectid' => $chat->id,
-            'context' => $context
-        );
+            'context' => $context,
+        ];
         $event = \mod_chat\event\course_module_viewed::create($params);
         $event->add_record_snapshot('chat', $chat);
         $event->trigger();
 
-        $url = new \moodle_url('/mod/chat/view.php', array('id' => $cm->id));
+        $url = new \moodle_url('/mod/chat/view.php', ['id' => $cm->id]);
         $this->assertEquals($url, $event->get_url());
         $event->get_name();
     }

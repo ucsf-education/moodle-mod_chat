@@ -23,12 +23,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$observers = array(
+$observers = [
 
     // User logging out.
-    array(
+    [
         'eventname' => '\core\event\user_loggedout',
         'callback' => 'chat_user_logout',
-        'includefile' => '/mod/chat/lib.php'
-    )
-);
+        'includefile' => '/mod/chat/lib.php',
+    ],
+];

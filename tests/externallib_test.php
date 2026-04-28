@@ -35,8 +35,7 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.0
  */
-class externallib_test extends externallib_advanced_testcase {
-
+final class externallib_test extends externallib_advanced_testcase {
     /**
      * Setup testcase.
      */
@@ -58,11 +57,11 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user = self::getDataGenerator()->create_user();
         $this->setUser($user);
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         $cm = get_coursemodule_from_instance('chat', $chat->id, $course->id);
@@ -70,9 +69,8 @@ class externallib_test extends externallib_advanced_testcase {
         $result = external_api::clean_returnvalue(mod_chat_external::login_user_returns(), $result);
 
         // Test session started.
-        $sid = $DB->get_field('chat_users', 'sid', array('userid' => $user->id, 'chatid' => $chat->id));
+        $sid = $DB->get_field('chat_users', 'sid', ['userid' => $user->id, 'chatid' => $chat->id]);
         $this->assertEquals($result['chatsid'], $sid);
-
     }
 
     /**
@@ -86,13 +84,13 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user1 = self::getDataGenerator()->create_user();
         $user2 = self::getDataGenerator()->create_user();
 
         $this->setUser($user1);
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, $studentrole->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, $studentrole->id);
 
@@ -116,7 +114,6 @@ class externallib_test extends externallib_advanced_testcase {
             }
         }
         $this->assertEquals(2, $found);
-
     }
 
     /**
@@ -130,11 +127,11 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user = self::getDataGenerator()->create_user();
         $this->setUser($user);
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         $result = mod_chat_external::login_user($chat->id);
@@ -169,7 +166,7 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
         $context = \context_module::instance($chat->cmid);
         $cm = get_coursemodule_from_instance('chat', $chat->id);
 
@@ -192,7 +189,7 @@ class externallib_test extends externallib_advanced_testcase {
         }
 
         // Test user with full capabilities.
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         // Trigger and capture the event.
@@ -208,7 +205,7 @@ class externallib_test extends externallib_advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_chat\event\course_module_viewed', $event);
         $this->assertEquals($context, $event->get_context());
-        $moodlechat = new \moodle_url('/mod/chat/view.php', array('id' => $cm->id));
+        $moodlechat = new \moodle_url('/mod/chat/view.php', ['id' => $cm->id]);
         $this->assertEquals($moodlechat, $event->get_url());
         $this->assertEventContextNotUsed($event);
         $this->assertNotEmpty($event->get_name());
@@ -238,22 +235,22 @@ class externallib_test extends externallib_advanced_testcase {
         $CFG->chat_method = 'header_js';
 
         $course1 = self::getDataGenerator()->create_course();
-        $chatoptions1 = array(
+        $chatoptions1 = [
                               'course' => $course1->id,
-                              'name' => 'First Chat'
-                             );
+                              'name' => 'First Chat',
+                             ];
         $chat1 = self::getDataGenerator()->create_module('chat', $chatoptions1);
         $course2 = self::getDataGenerator()->create_course();
-        $chatoptions2 = array(
+        $chatoptions2 = [
                               'course' => $course2->id,
-                              'name' => 'Second Chat'
-                             );
+                              'name' => 'Second Chat',
+                             ];
         $chat2 = self::getDataGenerator()->create_module('chat', $chatoptions2);
         $student1 = $this->getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
 
         // Enroll Student1 in Course1.
-        self::getDataGenerator()->enrol_user($student1->id,  $course1->id, $studentrole->id);
+        self::getDataGenerator()->enrol_user($student1->id, $course1->id, $studentrole->id);
         $this->setUser($student1);
 
         $chats = mod_chat_external::get_chats_by_courses();
@@ -282,7 +279,7 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertFalse(isset($chats['chats'][0]['section']));
 
         // Student1 is not enrolled in course2. The webservice will return a warning!
-        $chats = mod_chat_external::get_chats_by_courses(array($course2->id));
+        $chats = mod_chat_external::get_chats_by_courses([$course2->id]);
         // We need to execute the return values cleaning process to simulate the web service server.
         $chats = external_api::clean_returnvalue(mod_chat_external::get_chats_by_courses_returns(), $chats);
         $this->assertCount(0, $chats['chats']);
@@ -291,7 +288,7 @@ class externallib_test extends externallib_advanced_testcase {
         // Now as admin.
         $this->setAdminUser();
         // As Admin we can see this chat.
-        $chats = mod_chat_external::get_chats_by_courses(array($course2->id));
+        $chats = mod_chat_external::get_chats_by_courses([$course2->id]);
         // We need to execute the return values cleaning process to simulate the web service server.
         $chats = external_api::clean_returnvalue(mod_chat_external::get_chats_by_courses_returns(), $chats);
 
@@ -320,12 +317,11 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals(0, $chats['chats'][0]['section']);
 
         // Enrol student in the second course.
-        self::getDataGenerator()->enrol_user($student1->id,  $course2->id, $studentrole->id);
+        self::getDataGenerator()->enrol_user($student1->id, $course2->id, $studentrole->id);
         $this->setUser($student1);
         $chats = mod_chat_external::get_chats_by_courses();
         $chats = external_api::clean_returnvalue(mod_chat_external::get_chats_by_courses_returns(), $chats);
         $this->assertCount(2, $chats['chats']);
-
     }
 
     /**
@@ -339,7 +335,7 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $result = mod_chat_external::get_sessions($chat->id);
         $result = external_api::clean_returnvalue(mod_chat_external::get_sessions_returns(), $result);
@@ -360,7 +356,7 @@ class externallib_test extends externallib_advanced_testcase {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
         // Disable logs for students.
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id, 'studentlogs' => 0));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id, 'studentlogs' => 0]);
         // The admin has permissions to check logs.
         $result = mod_chat_external::get_sessions($chat->id);
         $result = external_api::clean_returnvalue(mod_chat_external::get_sessions_returns(), $result);
@@ -368,7 +364,7 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEmpty($result['warnings']);
 
         $user = self::getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         unassign_capability('mod/chat:readlog', $studentrole->id);
         accesslib_clear_all_caches_for_unit_testing();
 
@@ -390,11 +386,11 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user = self::getDataGenerator()->create_user();
         $this->setUser($user);
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         // Start a chat and send just one message.
@@ -429,11 +425,11 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user1 = self::getDataGenerator()->create_user();
         $user2 = self::getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, $studentrole->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, $studentrole->id);
 
@@ -452,12 +448,12 @@ class externallib_test extends externallib_advanced_testcase {
         $result = external_api::clean_returnvalue(mod_chat_external::send_chat_message_returns(), $result);
         // Need to change first messages and last message times to mark the session completed.
         // We receive 4 messages (2 system messages that indicates user joined and the 2 messages sent by the users).
-        $messages = $DB->get_records('chat_messages', array('chatid' => $chat->id));
+        $messages = $DB->get_records('chat_messages', ['chatid' => $chat->id]);
         // Messages just one hour ago and 70 seconds between them.
         $timegap = 0;
         $timenow = time();
         foreach ($messages as $message) {
-            $DB->set_field('chat_messages', 'timestamp', $timenow - HOURSECS + $timegap, array('id' => $message->id));
+            $DB->set_field('chat_messages', 'timestamp', $timenow - HOURSECS + $timegap, ['id' => $message->id]);
             $timegap += 70;
         }
         // Check session is completed.
@@ -481,11 +477,11 @@ class externallib_test extends externallib_advanced_testcase {
         // Setup test data.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id));
+        $chat = $this->getDataGenerator()->create_module('chat', ['course' => $course->id]);
 
         $user1 = self::getDataGenerator()->create_user();
         $user2 = self::getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, $studentrole->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, $studentrole->id);
 

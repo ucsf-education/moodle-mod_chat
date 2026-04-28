@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/mod/chat/backup/moodle2/restore_chat_stepslib.php
  * complete restore of the activity
  */
 class restore_chat_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -51,10 +50,10 @@ class restore_chat_activity_task extends restore_activity_task {
      * processed by the link decoder
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
-        $contents[] = new restore_decode_content('chat', array('intro'), 'chat');
-        $contents[] = new restore_decode_content('chat_messages', array('message'), 'chat_message');
+        $contents[] = new restore_decode_content('chat', ['intro'], 'chat');
+        $contents[] = new restore_decode_content('chat_messages', ['message'], 'chat_message');
 
         return $contents;
     }
@@ -64,13 +63,12 @@ class restore_chat_activity_task extends restore_activity_task {
      * to the activity to be executed by the link decoder
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_decode_rule('CHATVIEWBYID', '/mod/chat/view.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('CHATINDEX', '/mod/chat/index.php?id=$1', 'course');
 
         return $rules;
-
     }
 
     /**
@@ -80,7 +78,7 @@ class restore_chat_activity_task extends restore_activity_task {
      * of {@link restore_log_rule} objects
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('chat', 'add', 'view.php?id={course_module}', '{chat}');
         $rules[] = new restore_log_rule('chat', 'update', 'view.php?id={course_module}', '{chat}');
@@ -102,7 +100,7 @@ class restore_chat_activity_task extends restore_activity_task {
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
     public static function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('chat', 'view all', 'index.php?id={course}', null);
 

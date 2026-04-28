@@ -48,8 +48,8 @@ class dates extends activity_dates {
                 [
                     'dataid' => 'chattime',
                     'label'     => get_string('nextchattime', 'mod_chat'),
-                    'timestamp' => (int) $chattime
-                ]
+                    'timestamp' => (int) $chattime,
+                ],
             ];
         }
 

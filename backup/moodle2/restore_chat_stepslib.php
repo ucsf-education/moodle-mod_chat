@@ -29,10 +29,9 @@
  * Structure step to restore one chat activity
  */
 class restore_chat_activity_structure_step extends restore_activity_structure_step {
-
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('chat', '/activity/chat');

@@ -20,17 +20,17 @@ require_once('../lib.php');
 $id      = required_param('id', PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT); // Only for teachers.
 
-$url = new moodle_url('/mod/chat/gui_header_js/index.php', array('id' => $id));
+$url = new moodle_url('/mod/chat/gui_header_js/index.php', ['id' => $id]);
 if ($groupid !== 0) {
     $url->param('groupid', $groupid);
 }
 $PAGE->set_url($url);
 
-if (!$chat = $DB->get_record('chat', array('id' => $id))) {
+if (!$chat = $DB->get_record('chat', ['id' => $id])) {
     throw new \moodle_exception('invalidid', 'chat');
 }
 
-if (!$course = $DB->get_record('course', array('id' => $chat->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chat->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -50,9 +50,9 @@ if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being use
         if (!$group = groups_get_group($groupid)) {
             throw new \moodle_exception('invalidgroupid');
         }
-        $groupname = ': '.$group->name;
+        $groupname = ': ' . $group->name;
     } else {
-        $groupname = ': '.get_string('allparticipants');
+        $groupname = ': ' . get_string('allparticipants');
     }
 } else {
     $groupid = 0;
@@ -73,7 +73,7 @@ if (!empty($CFG->chat_normal_updatemode)) {
     $updatemode = $CFG->chat_normal_updatemode;
 }
 
-$courseshortname = format_string($course->shortname, true, array('context' => context_course::instance($course->id)));
+$courseshortname = format_string($course->shortname, true, ['context' => context_course::instance($course->id)]);
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
@@ -81,8 +81,8 @@ $courseshortname = format_string($course->shortname, true, array('context' => co
  <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <title>
-   <?php echo "$strchat: " . $courseshortname . ": ".
-              format_string($chat->name, true, array('context' => $context)) . "$groupname" ?>
+   <?php echo "$strchat: " . $courseshortname . ": " .
+              format_string($chat->name, true, ['context' => $context]) . "$groupname" ?>
   </title>
  </head>
  <frameset cols="*,200" border="5" framespacing="no" frameborder="yes" marginwidth="2" marginheight="1">

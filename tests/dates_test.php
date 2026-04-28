@@ -31,7 +31,6 @@ use core\activity_dates;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class dates_test extends advanced_testcase {
-
     /**
      * Setup testcase.
      */
@@ -59,10 +58,10 @@ final class dates_test extends advanced_testcase {
         $label = get_string('nextchattime', 'mod_chat');
         return [
             'chattime in the past (no schedule)' => [
-                $past, CHAT_SCHEDULE_NONE, []
+                $past, CHAT_SCHEDULE_NONE, [],
             ],
             'chattime in the past (single schedule)' => [
-                $past, CHAT_SCHEDULE_SINGLE, []
+                $past, CHAT_SCHEDULE_SINGLE, [],
             ],
             'chattime in the future' => [
                 $future, CHAT_SCHEDULE_SINGLE, [
@@ -71,7 +70,7 @@ final class dates_test extends advanced_testcase {
                         'timestamp' => $future,
                         'dataid' => 'chattime',
                     ],
-                ]
+                ],
             ],
             'future chattime weekly' => [
                 $future, CHAT_SCHEDULE_WEEKLY, [
@@ -79,8 +78,8 @@ final class dates_test extends advanced_testcase {
                         'label' => $label,
                         'timestamp' => $future,
                         'dataid' => 'chattime',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'future chattime daily' => [
                 $future, CHAT_SCHEDULE_DAILY, [
@@ -88,8 +87,8 @@ final class dates_test extends advanced_testcase {
                         'label' => $label,
                         'timestamp' => $future,
                         'dataid' => 'chattime',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'past chattime daily' => [
                 $past, CHAT_SCHEDULE_DAILY, [
@@ -98,7 +97,7 @@ final class dates_test extends advanced_testcase {
                         'timestamp' => $dailynextchattime,
                         'dataid' => 'chattime',
                     ],
-                ]
+                ],
             ],
             'past chattime weekly' => [
                 $past, CHAT_SCHEDULE_WEEKLY, [
@@ -107,7 +106,7 @@ final class dates_test extends advanced_testcase {
                         'timestamp' => $weeklynextchattime,
                         'dataid' => 'chattime',
                     ],
-                ]
+                ],
             ],
         ];
     }

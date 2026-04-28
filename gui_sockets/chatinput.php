@@ -21,19 +21,19 @@ require_once('../lib.php');
 
 $chatsid = required_param('chat_sid', PARAM_ALPHANUM);
 
-$PAGE->set_url('/mod/chat/gui_sockets/chatinput.php', array('chat_sid' => $chatsid));
+$PAGE->set_url('/mod/chat/gui_sockets/chatinput.php', ['chat_sid' => $chatsid]);
 $PAGE->set_popup_notification_allowed(false);
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new \moodle_exception('notlogged', 'chat');
 }
 
 // Get the user theme.
-$USER = $DB->get_record('user', array('id' => $chatuser->userid));
+$USER = $DB->get_record('user', ['id' => $chatuser->userid]);
 
 // Setup course, lang and theme.
 $PAGE->set_pagelayout('embedded');
-$PAGE->set_course($DB->get_record('course', array('id' => $chatuser->course)));
+$PAGE->set_course($DB->get_record('course', ['id' => $chatuser->course]));
 $PAGE->requires->js('/mod/chat/gui_sockets/chat_gui_sockets.js', true);
 $PAGE->requires->js_function_call('setfocus');
 $PAGE->set_focuscontrol('chat_message');

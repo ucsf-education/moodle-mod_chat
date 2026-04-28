@@ -24,7 +24,7 @@ $refresh = optional_param('refresh', '', PARAM_RAW); // Force refresh.
 $last    = optional_param('last', 0, PARAM_INT);     // Last time refresh or sending.
 $newonly = optional_param('newonly', 0, PARAM_BOOL); // Show only new messages.
 
-$url = new moodle_url('/mod/chat/gui_basic/index.php', array('id' => $id));
+$url = new moodle_url('/mod/chat/gui_basic/index.php', ['id' => $id]);
 if ($groupid !== 0) {
     $url->param('groupid', $groupid);
 }
@@ -42,11 +42,11 @@ if ($newonly !== 0) {
 }
 $PAGE->set_url($url);
 
-if (!$chat = $DB->get_record('chat', array('id' => $id))) {
+if (!$chat = $DB->get_record('chat', ['id' => $id])) {
     throw new \moodle_exception('invalidid', 'chat');
 }
 
-if (!$course = $DB->get_record('course', array('id' => $chat->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chat->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -66,9 +66,9 @@ if ($groupmode = groups_get_activity_groupmode($cm)) { // Groups are being used.
         if (!$group = groups_get_group($groupid)) {
             throw new \moodle_exception('invalidgroupid');
         }
-        $groupname = ': '.$group->name;
+        $groupname = ': ' . $group->name;
     } else {
-        $groupname = ': '.get_string('allparticipants');
+        $groupname = ': ' . get_string('allparticipants');
     }
 } else {
     $groupid = 0;
@@ -86,13 +86,13 @@ if (!$chatusers = chat_get_users($chat->id, $groupid, $cm->groupingid)) {
     throw new \moodle_exception('errornousers', 'chat');
 }
 
-$DB->set_field('chat_users', 'lastping', time(), array('sid' => $chatsid));
+$DB->set_field('chat_users', 'lastping', time(), ['sid' => $chatsid]);
 
 if (!isset($SESSION->chatprefs)) {
-    $SESSION->chatprefs = array();
+    $SESSION->chatprefs = [];
 }
 if (!isset($SESSION->chatprefs[$chat->id])) {
-    $SESSION->chatprefs[$chat->id] = array();
+    $SESSION->chatprefs[$chat->id] = [];
     $SESSION->chatprefs[$chat->id]['chatentered'] = time();
 }
 $chatentered = $SESSION->chatprefs[$chat->id]['chatentered'];
@@ -103,24 +103,21 @@ if (!empty($refresh) and data_submitted()) {
     $refreshedmessage = $message;
 
     chat_delete_old_users();
-
 } else if (empty($refresh) and data_submitted() and confirm_sesskey()) {
-
     if ($message != '') {
-
-        $chatuser = $DB->get_record('chat_users', array('sid' => $chatsid));
+        $chatuser = $DB->get_record('chat_users', ['sid' => $chatsid]);
         chat_send_chatmessage($chatuser, $message, 0, $cm);
 
-        $DB->set_field('chat_users', 'lastmessageping', time(), array('sid' => $chatsid));
+        $DB->set_field('chat_users', 'lastmessageping', time(), ['sid' => $chatsid]);
     }
 
     chat_delete_old_users();
 
-    $url = new moodle_url('/mod/chat/gui_basic/index.php', array('id' => $id, 'newonly' => $newonly, 'last' => $last));
+    $url = new moodle_url('/mod/chat/gui_basic/index.php', ['id' => $id, 'newonly' => $newonly, 'last' => $last]);
     redirect($url);
 }
 
-$PAGE->set_title("$strchat: $course->shortname: ".format_string($chat->name, true)."$groupname");
+$PAGE->set_title("$strchat: $course->shortname: " . format_string($chat->name, true) . "$groupname");
 echo $OUTPUT->header();
 echo $OUTPUT->container_start(null, 'page-mod-chat-gui_basic');
 
@@ -133,11 +130,11 @@ echo $OUTPUT->box_start('generalbox', 'participants');
 echo '<ul>';
 foreach ($chatusers as $chu) {
     echo '<li class="clearfix">';
-    echo $OUTPUT->user_picture($chu, array('size' => 24, 'courseid' => $course->id));
+    echo $OUTPUT->user_picture($chu, ['size' => 24, 'courseid' => $course->id]);
     echo '<div class="userinfo">';
-    echo fullname($chu).' ';
+    echo fullname($chu) . ' ';
     if ($idle = time() - $chu->lastmessageping) {
-        echo '<span class="idle">'.$stridle.' '.format_time($idle).'</span>';
+        echo '<span class="idle">' . $stridle . ' ' . format_time($idle) . '</span>';
     } else {
         echo '<span class="idle" />';
     }
@@ -153,16 +150,16 @@ echo '<h2><label for="message">' . get_string('sendmessage', 'message');
 echo $OUTPUT->help_icon('usingchat', 'chat');
 echo '</label></h2>';
 echo '<div class="mb-1">';
-echo '<input type="text" id="message" class="form-control" name="message" value="'.s($refreshedmessage, true).'" size="60" />';
+echo '<input type="text" id="message" class="form-control" name="message" value="' . s($refreshedmessage, true) . '" size="60" />';
 echo '</div><div class="mb-1">';
-echo '<input type="hidden" name="id" value="'.$id.'" />';
-echo '<input type="hidden" name="groupid" value="'.$groupid.'" />';
-echo '<input type="hidden" name="last" value="'.time().'" />';
-echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-echo '<input type="submit" class="btn btn-primary" value="'.get_string('submit').'" />&nbsp;';
-echo '<input type="submit" class="btn btn-secondary" name="refresh" value="'.get_string('refresh').'" />';
-echo '<input type="checkbox" class="mx-1" name="newonly" id="newonly" '.($newonly ? 'checked="checked" ' : '').'/>';
-echo '<label for="newonly">'.get_string('newonlymsg', 'message').'</label>';
+echo '<input type="hidden" name="id" value="' . $id . '" />';
+echo '<input type="hidden" name="groupid" value="' . $groupid . '" />';
+echo '<input type="hidden" name="last" value="' . time() . '" />';
+echo '<input type="hidden" name="sesskey" value="' . sesskey() . '" />';
+echo '<input type="submit" class="btn btn-primary" value="' . get_string('submit') . '" />&nbsp;';
+echo '<input type="submit" class="btn btn-secondary" name="refresh" value="' . get_string('refresh') . '" />';
+echo '<input type="checkbox" class="mx-1" name="newonly" id="newonly" ' . ($newonly ? 'checked="checked" ' : '') . '/>';
+echo '<label for="newonly">' . get_string('newonlymsg', 'message') . '</label>';
 echo '</div>';
 echo '</form>';
 echo '</div>';
@@ -170,12 +167,12 @@ echo '</div>';
 echo '<div id="messages">';
 echo $OUTPUT->heading(get_string('messages', 'chat'), 3);
 
-$allmessages = array();
+$allmessages = [];
 $options = new stdClass();
 $options->para = false;
 $options->newlines = true;
 
-$params = array('last' => $last, 'groupid' => $groupid, 'chatid' => $chat->id, 'chatentered' => $chatentered);
+$params = ['last' => $last, 'groupid' => $groupid, 'chatid' => $chat->id, 'chatentered' => $chatentered];
 
 if ($newonly) {
     $lastsql = "AND timestamp > :last";
@@ -185,9 +182,12 @@ if ($newonly) {
 
 $groupselect = $groupid ? "AND (groupid=:groupid OR groupid=0)" : "";
 
-$messages = $DB->get_records_select("chat_messages_current",
-                    "chatid = :chatid AND timestamp > :chatentered $lastsql $groupselect", $params,
-                    "timestamp DESC");
+$messages = $DB->get_records_select(
+    "chat_messages_current",
+    "chatid = :chatid AND timestamp > :chatentered $lastsql $groupselect",
+    $params,
+    "timestamp DESC"
+);
 
 if ($messages) {
     foreach ($messages as $message) {

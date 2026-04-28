@@ -20,17 +20,17 @@ require_once('../lib.php');
 $chatsid     = required_param('chat_sid', PARAM_ALPHANUM);
 $chatmessage = required_param('chat_message', PARAM_RAW);
 
-$PAGE->set_url('/mod/chat/gui_header_js/insert.php', array('chat_sid' => $chatsid, 'chat_message' => $chatmessage));
+$PAGE->set_url('/mod/chat/gui_header_js/insert.php', ['chat_sid' => $chatsid, 'chat_message' => $chatmessage]);
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new \moodle_exception('notlogged', 'chat');
 }
 
-if (!$chat = $DB->get_record('chat', array('id' => $chatuser->chatid))) {
+if (!$chat = $DB->get_record('chat', ['id' => $chatuser->chatid])) {
     throw new \moodle_exception('nochat', 'chat');
 }
 
-if (!$course = $DB->get_record('course', array('id' => $chat->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chat->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -57,7 +57,6 @@ $chatmessage = clean_text($chatmessage, FORMAT_MOODLE);  // Strip bad tags.
 // Add the message to the database.
 
 if (!empty($chatmessage)) {
-
     chat_send_chatmessage($chatuser, $chatmessage, 0, $cm);
 
     $chatuser->lastmessageping = time() - 2;
@@ -65,14 +64,13 @@ if (!empty($chatmessage)) {
 }
 
 if ($chatuser->version == 'header_js') {
-
     $forcerefreshasap = ($CFG->chat_normal_updatemode != 'jsupdated'); // See bug MDL-6791.
 
-    $module = array(
+    $module = [
         'name'      => 'mod_chat_header',
-        'fullpath'  => '/mod/chat/gui_header_js/module.js'
-    );
-    $PAGE->requires->js_init_call('M.mod_chat_header.init_insert_nojsupdated', array($forcerefreshasap), true, $module);
+        'fullpath'  => '/mod/chat/gui_header_js/module.js',
+    ];
+    $PAGE->requires->js_init_call('M.mod_chat_header.init_insert_nojsupdated', [$forcerefreshasap], true, $module);
 }
 
 redirect('../empty.php');

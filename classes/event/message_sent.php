@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class message_sent extends \core\event\base {
-
     /**
      * Returns description of what happened.
      *
@@ -60,7 +59,7 @@ class message_sent extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/chat/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/chat/view.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -88,6 +87,6 @@ class message_sent extends \core\event\base {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'chat_messages', 'restore' => 'chat_message');
+        return ['db' => 'chat_messages', 'restore' => 'chat_message'];
     }
 }

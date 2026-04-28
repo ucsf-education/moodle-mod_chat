@@ -24,26 +24,26 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__.'/../../config.php');
+require(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/chat/lib.php');
 
 // Browser quirks.
 define('QUIRK_CHUNK_UPDATE', 0x0001);
 
 // Connection telltale.
-define('CHAT_CONNECTION',           0x10);
+define('CHAT_CONNECTION', 0x10);
 // Connections: Incrementing sequence, 0x10 to 0x1f.
-define('CHAT_CONNECTION_CHANNEL',   0x11);
+define('CHAT_CONNECTION_CHANNEL', 0x11);
 
 // Sidekick telltale.
-define('CHAT_SIDEKICK',             0x20);
+define('CHAT_SIDEKICK', 0x20);
 // Sidekicks: Incrementing sequence, 0x21 to 0x2f.
-define('CHAT_SIDEKICK_USERS',       0x21);
-define('CHAT_SIDEKICK_MESSAGE',     0x22);
-define('CHAT_SIDEKICK_BEEP',        0x23);
+define('CHAT_SIDEKICK_USERS', 0x21);
+define('CHAT_SIDEKICK_MESSAGE', 0x22);
+define('CHAT_SIDEKICK_BEEP', 0x23);
 
 $phpversion = phpversion();
-echo 'Moodle chat daemon v1.0 on PHP '.$phpversion."\n\n";
+echo 'Moodle chat daemon v1.0 on PHP ' . $phpversion . "\n\n";
 
 // Set up all the variables we need.
 
@@ -60,7 +60,7 @@ core_php_time_limit::raise(0);
 error_reporting(E_ALL);
 
 function chat_empty_connection() {
-    return array('sid' => null, 'handle' => null, 'ip' => null, 'port' => null, 'groupid' => null);
+    return ['sid' => null, 'handle' => null, 'ip' => null, 'port' => null, 'groupid' => null];
 }
 
 class ChatConnection {
@@ -121,30 +121,30 @@ class ChatDaemon {
     public $setsinfo = []; // Keyed by sessionid exactly like conn_sets, one of these for each of those.
 
     /** @var array connection data with session ID as the key. */
-    public $conn_sets = [];
+    public $connsets = [];
 
     /** @var array connection data. */
-    public $conn_side = [];
+    public $connside = [];
 
     /** @var array connection data. */
-    public $conn_half = [];
+    public $connhalf = [];
 
     /** @var array connection data. */
-    public $conn_ufo = [];
+    public $connufo = [];
 
     /** @var resource|Socket socket resource. */
-    public $listen_socket;
+    public $listensocket;
 
     // IMPORTANT: $connectionssets, $setsinfo and $chatrooms must remain synchronized!
-    //            Pay extra attention when you write code that affects any of them!
+    // Pay extra attention when you write code that affects any of them!
 
     public function __construct() {
         $this->_trace_level         = E_ALL ^ E_USER_NOTICE;
         $this->_pcntl_exists        = function_exists('pcntl_fork');
         $this->_time_rest_socket    = 20;
-        $this->_beepsoundsrc        = $GLOBALS['CFG']->wwwroot.'/mod/chat/beep.mp3';
+        $this->_beepsoundsrc        = $globals['CFG']->wwwroot . '/mod/chat/beep.mp3';
         $this->_freq_update_records = 20;
-        $this->_freq_poll_idle_chat = $GLOBALS['CFG']->chat_old_ping;
+        $this->_freq_poll_idle_chat = $globals['CFG']->chat_old_ping;
         $this->_stdout = fopen('php://stdout', 'w');
         if ($this->_stdout) {
             // Avoid double traces for everything.
@@ -155,7 +155,7 @@ class ChatDaemon {
     public function error_handler($errno, $errmsg, $filename, $linenum, $vars) {
         // Checks if an error needs to be suppressed due to @.
         if (error_reporting() != 0) {
-            $this->trace($errmsg.' on line '.$linenum, $errno);
+            $this->trace($errmsg . ' on line ' . $linenum, $errno);
         }
         return true;
     }
@@ -167,11 +167,13 @@ class ChatDaemon {
                 if (!empty($chatroom['users'])) {
                     foreach ($chatroom['users'] as $sessionid => $userid) {
                         // We will be polling each user as required.
-                        $this->trace('...shall we poll '.$sessionid.'?');
-                        if (!empty($this->sets_info[$sessionid]) && isset($this->sets_info[$sessionid]['chatuser']) &&
+                        $this->trace('...shall we poll ' . $sessionid . '?');
+                        if (
+                            !empty($this->sets_info[$sessionid]) && isset($this->sets_info[$sessionid]['chatuser']) &&
                                 // Having tried to exclude race conditions as already done in user_lazy_update()
                                 // please do the real job by checking the last poll.
-                                ($this->sets_info[$sessionid]['chatuser']->lastmessageping < $this->_last_idle_poll)) {
+                                ($this->sets_info[$sessionid]['chatuser']->lastmessageping < $this->_last_idle_poll)
+                        ) {
                             $this->trace('YES!');
                             // This user hasn't been polled since his last message.
                             $result = $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], '<!-- poll -->');
@@ -194,7 +196,7 @@ class ChatDaemon {
     public function trace($message, $level = E_USER_NOTICE) {
         $severity = '';
 
-        switch($level) {
+        switch ($level) {
             case E_USER_WARNING:
                 $severity = '*IMPORTANT* ';
                 break;
@@ -208,7 +210,7 @@ class ChatDaemon {
         }
 
         $date = date('[Y-m-d H:i:s] ');
-        $message = $date.$severity.$message."\n";
+        $message = $date . $severity . $message . "\n";
 
         if ($this->_trace_level & $level) {
             // It is accepted for output.
@@ -246,7 +248,7 @@ class ChatDaemon {
         global $DB;
 
         if (empty($this->sets_info[$sessionid])) {
-            $this->trace('user_lazy_update() called for an invalid SID: '.$sessionid, E_USER_WARNING);
+            $this->trace('user_lazy_update() called for an invalid SID: ' . $sessionid, E_USER_WARNING);
             return false;
         }
 
@@ -324,20 +326,20 @@ EOD;
 
             echo '<tr><td width="35">';
 
-            $link = '/user/view.php?id='.$userinfo['user']->id.'&course='.$userinfo['courseid'];
-            $anchortagcontents = $OUTPUT->user_picture($userinfo['user'], array('courseid' => $userinfo['courseid']));
+            $link = '/user/view.php?id=' . $userinfo['user']->id . '&course=' . $userinfo['courseid'];
+            $anchortagcontents = $OUTPUT->user_picture($userinfo['user'], ['courseid' => $userinfo['courseid']]);
 
-            $action = new popup_action('click', $link, 'user'.$userinfo['chatuser']->id);
+            $action = new popup_action('click', $link, 'user' . $userinfo['chatuser']->id);
             $anchortag = $OUTPUT->action_link($link, $anchortagcontents, $action);
 
             echo $anchortag;
             echo "</td><td valign=\"center\">";
             echo "<p><font size=\"1\">";
-            echo fullname($userinfo['user'])."<br />";
-            echo "<font color=\"#888888\">$str->idle: ".format_time($lastping, $str)."</font> ";
-            echo '<a target="empty" href="http://'.$CFG->chat_serverhost.':'.$CFG->chat_serverport.
-                 '/?win=beep&amp;beep='.$userinfo['user']->id.
-                 '&chat_sid='.$sessionid.'">'.$str->beep."</a>\n";
+            echo fullname($userinfo['user']) . "<br />";
+            echo "<font color=\"#888888\">$str->idle: " . format_time($lastping, $str) . "</font> ";
+            echo '<a target="empty" href="http://' . $CFG->chat_serverhost . ':' . $CFG->chat_serverport .
+                 '/?win=beep&amp;beep=' . $userinfo['user']->id .
+                 '&chat_sid=' . $sessionid . '">' . $str->beep . "</a>\n";
             echo "</font></p>";
             echo "<td></tr>";
         }
@@ -346,7 +348,6 @@ EOD;
         echo "</body>\n</html>\n";
 
         return ob_get_clean();
-
     }
 
     public function new_ufo_id() {
@@ -372,21 +373,24 @@ EOD;
     public function dispatch_sidekick($handle, $type, $sessionid, $customdata) {
         global $CFG, $DB;
 
-        switch($type) {
+        switch ($type) {
             case CHAT_SIDEKICK_BEEP:
-
                 // Incoming beep.
-                $msg = new stdClass;
+                $msg = new stdClass();
                 $msg->chatid    = $this->sets_info[$sessionid]['chatid'];
                 $msg->userid    = $this->sets_info[$sessionid]['userid'];
                 $msg->groupid   = $this->sets_info[$sessionid]['groupid'];
                 $msg->issystem  = 0;
-                $msg->message   = 'beep '.$customdata['beep'];
+                $msg->message   = 'beep ' . $customdata['beep'];
                 $msg->timestamp = time();
 
                 // Commit to DB.
-                chat_send_chatmessage($this->sets_info[$sessionid]['chatuser'], $msg->message, false,
-                    $this->sets_info[$sessionid]['cm']);
+                chat_send_chatmessage(
+                    $this->sets_info[$sessionid]['chatuser'],
+                    $msg->message,
+                    false,
+                    $this->sets_info[$sessionid]['cm']
+                );
 
                 // OK, now push it out to all users.
                 $this->message_broadcast($msg, $this->sets_info[$sessionid]['user']);
@@ -402,10 +406,10 @@ EOD;
 
                 $header  = "HTTP/1.1 200 OK\n";
                 $header .= "Connection: close\n";
-                $header .= "Date: ".date('r')."\n";
+                $header .= "Date: " . date('r') . "\n";
                 $header .= "Server: Moodle\n";
                 $header .= "Content-Type: text/html; charset=utf-8\n";
-                $header .= "Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT\n";
+                $header .= "Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT\n";
                 $header .= "Cache-Control: no-cache, must-revalidate\n";
                 $header .= "Expires: Wed, 4 Oct 1978 09:32:45 GMT\n";
                 $header .= "\n";
@@ -413,7 +417,7 @@ EOD;
                 // That's enough headers for one lousy dummy response.
                 $this->write_data($handle, $header);
                 // All done.
-            break;
+                break;
 
             case CHAT_SIDEKICK_USERS:
                 // A request to paint a user window.
@@ -422,31 +426,31 @@ EOD;
 
                 $header  = "HTTP/1.1 200 OK\n";
                 $header .= "Connection: close\n";
-                $header .= "Date: ".date('r')."\n";
+                $header .= "Date: " . date('r') . "\n";
                 $header .= "Server: Moodle\n";
                 $header .= "Content-Type: text/html; charset=utf-8\n";
-                $header .= "Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT\n";
+                $header .= "Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT\n";
                 $header .= "Cache-Control: no-cache, must-revalidate\n";
                 $header .= "Expires: Wed, 4 Oct 1978 09:32:45 GMT\n";
-                $header .= "Content-Length: ".strlen($content)."\n";
+                $header .= "Content-Length: " . strlen($content) . "\n";
 
                 // The refresh value is 2 seconds higher than the configuration variable.
                 // This is because we are doing JS refreshes all the time.
                 // However, if the JS doesn't work for some reason, we still want to refresh once in a while.
-                $header .= "Refresh: ".(intval($CFG->chat_refresh_userlist) + 2).
-                           "; url=http://$CFG->chat_serverhost:$CFG->chat_serverport/?win=users&".
-                           "chat_sid=".$sessionid."\n";
+                $header .= "Refresh: " . (intval($CFG->chat_refresh_userlist) + 2) .
+                           "; url=http://$CFG->chat_serverhost:$CFG->chat_serverport/?win=users&" .
+                           "chat_sid=" . $sessionid . "\n";
                 $header .= "\n";
 
                 // That's enough headers for one lousy dummy response.
-                $this->trace('writing users http response to handle '.$handle);
+                $this->trace('writing users http response to handle ' . $handle);
                 $this->write_data($handle, $header . $content);
 
                 // Update that user's lastping.
                 $this->sets_info[$sessionid]['chatuser']->lastping = time();
                 $this->user_lazy_update($sessionid);
 
-            break;
+                break;
 
             case CHAT_SIDEKICK_MESSAGE:
                 // Incoming message.
@@ -462,7 +466,7 @@ EOD;
                     $this->sets_info[$sessionid]['lastmessageindex'] = $messageindex;
                 }
 
-                $msg = new stdClass;
+                $msg = new stdClass();
                 $msg->chatid    = $this->sets_info[$sessionid]['chatid'];
                 $msg->userid    = $this->sets_info[$sessionid]['userid'];
                 $msg->groupid   = $this->sets_info[$sessionid]['groupid'];
@@ -480,8 +484,12 @@ EOD;
                 $msg->message = $msg->message;
 
                 // Commit to DB.
-                chat_send_chatmessage($this->sets_info[$sessionid]['chatuser'], $msg->message, false,
-                    $this->sets_info[$sessionid]['cm']);
+                chat_send_chatmessage(
+                    $this->sets_info[$sessionid]['chatuser'],
+                    $msg->message,
+                    false,
+                    $this->sets_info[$sessionid]['cm']
+                );
 
                 // Undo the hack.
                 $msg->message = $origmsg;
@@ -500,10 +508,10 @@ EOD;
 
                 $header  = "HTTP/1.1 200 OK\n";
                 $header .= "Connection: close\n";
-                $header .= "Date: ".date('r')."\n";
+                $header .= "Date: " . date('r') . "\n";
                 $header .= "Server: Moodle\n";
                 $header .= "Content-Type: text/html; charset=utf-8\n";
-                $header .= "Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT\n";
+                $header .= "Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT\n";
                 $header .= "Cache-Control: no-cache, must-revalidate\n";
                 $header .= "Expires: Wed, 4 Oct 1978 09:32:45 GMT\n";
                 $header .= "\n";
@@ -512,7 +520,7 @@ EOD;
                 $this->write_data($handle, $header);
 
                 // All done.
-            break;
+                break;
         }
 
         socket_shutdown($handle);
@@ -523,26 +531,26 @@ EOD;
         global $DB;
 
         if (isset($this->conn_sets[$sessionid])) {
-            $this->trace('Set cannot be finalized: Session '.$sessionid.' is already active');
+            $this->trace('Set cannot be finalized: Session ' . $sessionid . ' is already active');
             return false;
         }
 
-        $chatuser = $DB->get_record('chat_users', array('sid' => $sessionid));
+        $chatuser = $DB->get_record('chat_users', ['sid' => $sessionid]);
         if ($chatuser === false) {
             $this->dismiss_half($sessionid);
             return false;
         }
-        $chat = $DB->get_record('chat', array('id' => $chatuser->chatid));
+        $chat = $DB->get_record('chat', ['id' => $chatuser->chatid]);
         if ($chat === false) {
             $this->dismiss_half($sessionid);
             return false;
         }
-        $user = $DB->get_record('user', array('id' => $chatuser->userid));
+        $user = $DB->get_record('user', ['id' => $chatuser->userid]);
         if ($user === false) {
             $this->dismiss_half($sessionid);
             return false;
         }
-        $course = $DB->get_record('course', array('id' => $chat->course));
+        $course = $DB->get_record('course', ['id' => $chat->course]);
         if ($course === false) {
             $this->dismiss_half($sessionid);
             return false;
@@ -552,13 +560,13 @@ EOD;
             return false;
         }
 
-        global $CHAT_HTMLHEAD_JS;
+        global $chathtmlheadjs;
 
         $this->conn_sets[$sessionid] = $this->conn_half[$sessionid];
 
         // This whole thing needs to be purged of redundant info, and the
         // code base to follow suit. But AFTER development is done.
-        $this->sets_info[$sessionid] = array(
+        $this->sets_info[$sessionid] = [
             'lastinfocommit' => 0,
             'lastmessageindex' => 0,
             'course'    => $course,
@@ -570,12 +578,12 @@ EOD;
             'userid'    => $user->id,
             'groupid'   => $chatuser->groupid,
             'lang'      => $chatuser->lang,
-            'quirks'    => $customdata['quirks']
-        );
+            'quirks'    => $customdata['quirks'],
+        ];
 
         // If we know nothing about this chatroom, initialize it and add the user.
         if (!isset($this->chatrooms[$chat->id]['users'])) {
-            $this->chatrooms[$chat->id]['users'] = array($sessionid => $user->id);
+            $this->chatrooms[$chat->id]['users'] = [$sessionid => $user->id];
         } else {
             // Otherwise just add the user.
             $this->chatrooms[$chat->id]['users'][$sessionid] = $user->id;
@@ -583,28 +591,28 @@ EOD;
 
         $header  = "HTTP/1.1 200 OK\n";
         $header .= "Connection: close\n";
-        $header .= "Date: ".date('r')."\n";
+        $header .= "Date: " . date('r') . "\n";
         $header .= "Server: Moodle\n";
         $header .= "Content-Type: text/html; charset=utf-8\n";
-        $header .= "Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT\n";
+        $header .= "Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT\n";
         $header .= "Cache-Control: no-cache, must-revalidate\n";
         $header .= "Expires: Wed, 4 Oct 1978 09:32:45 GMT\n";
         $header .= "\n";
 
         $this->dismiss_half($sessionid, false);
-        $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], $header . $CHAT_HTMLHEAD_JS);
+        $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], $header . $chathtmlheadjs);
         $this->trace('Connection accepted: '
-                     .$this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL]
-                     .', SID: '
-                     .$sessionid
-                     .' UID: '
-                     .$chatuser->userid
-                     .' GID: '
-                     .$chatuser->groupid, E_USER_WARNING);
+                     . $this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL]
+                     . ', SID: '
+                     . $sessionid
+                     . ' UID: '
+                     . $chatuser->userid
+                     . ' GID: '
+                     . $chatuser->groupid, E_USER_WARNING);
 
         // Finally, broadcast the "entered the chat" message.
 
-        $msg = new stdClass;
+        $msg = new stdClass();
         $msg->chatid = $chatuser->chatid;
         $msg->userid = $chatuser->userid;
         $msg->groupid = $chatuser->groupid;
@@ -635,7 +643,7 @@ EOD;
                     } else {
                         // No, so put it in the waiting list.
                         $this->trace('sidekick waiting');
-                        $this->conn_side[$sessionid][] = array('type' => $type, 'handle' => $handle, 'customdata' => $customdata);
+                        $this->conn_side[$sessionid][] = ['type' => $type, 'handle' => $handle, 'customdata' => $customdata];
                     }
                     return true;
                 }
@@ -644,12 +652,12 @@ EOD;
 
                 if ($type & CHAT_CONNECTION) {
                     // This forces a new connection right now.
-                    $this->trace('Incoming connection from '.$ufo->ip.':'.$ufo->port);
+                    $this->trace('Incoming connection from ' . $ufo->ip . ':' . $ufo->port);
 
                     // Do we have such a connection active?
                     if (isset($this->conn_sets[$sessionid])) {
                         // Yes, so regrettably we cannot promote you.
-                        $this->trace('Connection rejected: session '.$sessionid.' is already final');
+                        $this->trace('Connection rejected: session ' . $sessionid . ' is already final');
                         $this->dismiss_ufo($handle, true, 'Your SID was rejected.');
                         return false;
                     }
@@ -700,7 +708,7 @@ EOD;
         unset($this->conn_sets[$sessionid]);
         unset($this->sets_info[$sessionid]);
         unset($this->chatrooms[$chatroom]['users'][$sessionid]);
-        $this->trace('Removed all traces of user with session '.$sessionid, E_USER_NOTICE);
+        $this->trace('Removed all traces of user with session ' . $sessionid, E_USER_NOTICE);
         return true;
     }
 
@@ -713,7 +721,7 @@ EOD;
                 unset($this->conn_ufo[$id]);
                 if ($disconnect) {
                     if (!empty($message)) {
-                        $this->write_data($handle, $message."\n\n");
+                        $this->write_data($handle, $message . "\n\n");
                     }
                     socket_shutdown($handle);
                     socket_close($handle);
@@ -725,7 +733,7 @@ EOD;
     }
 
     public function conn_accept() {
-        $readsocket = array($this->listen_socket);
+        $readsocket = [$this->listen_socket];
         $write = null;
         $except = null;
         $changed = socket_select($readsocket, $write, $except, 0, 0);
@@ -744,7 +752,7 @@ EOD;
     }
 
     public function conn_activity_ufo(&$handles) {
-        $monitor = array();
+        $monitor = [];
         if (!empty($this->conn_ufo)) {
             foreach ($this->conn_ufo as $ufoid => $ufo) {
                 // Avoid socket_select() warnings by preventing the check over invalid resources.
@@ -757,7 +765,7 @@ EOD;
         }
 
         if (empty($monitor)) {
-            $handles = array();
+            $handles = [];
             return 0;
         }
 
@@ -782,27 +790,30 @@ EOD;
 
         foreach ($this->sets_info as $sessionid => $info) {
             // We need to get handles from users that are in the same chatroom, same group.
-            if ($info['chatid'] == $message->chatid &&
-              ($info['groupid'] == $message->groupid || $message->groupid == 0)) {
-
+            if (
+                $info['chatid'] == $message->chatid &&
+                ($info['groupid'] == $message->groupid || $message->groupid == 0)
+            ) {
                 // Simply give them the message.
                 $output = chat_format_message_manually($message, $info['courseid'], $sender, $info['user']);
                 if ($output !== false) {
-                    $this->trace('Delivering message "'.$output->text.'" to ' .
+                    $this->trace('Delivering message "' . $output->text . '" to ' .
                         $this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL]);
 
                     if ($output->beep) {
                         $playscript = '(function() { var audioElement = document.createElement("audio");' . "\n";
-                        $playscript .= 'audioElement.setAttribute("src", "'.$this->_beepsoundsrc.'");' . "\n";
+                        $playscript .= 'audioElement.setAttribute("src", "' . $this->_beepsoundsrc . '");' . "\n";
                         $playscript .= 'audioElement.play(); })();' . "\n";
-                        $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL],
-                                          '<script>' . $playscript . '</script>');
+                        $this->write_data(
+                            $this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL],
+                            '<script>' . $playscript . '</script>'
+                        );
                     }
 
                     if ($info['quirks'] & QUIRK_CHUNK_UPDATE) {
-                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
-                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
-                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
+                        $output->html .= $globals['CHAT_DUMMY_DATA'];
+                        $output->html .= $globals['CHAT_DUMMY_DATA'];
+                        $output->html .= $globals['CHAT_DUMMY_DATA'];
                     }
 
                     if (!$this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], $output->html)) {
@@ -818,8 +829,8 @@ EOD;
 
         $info = $this->sets_info[$sessionid];
 
-        $DB->delete_records('chat_users', array('sid' => $sessionid));
-        $msg = new stdClass;
+        $DB->delete_records('chat_users', ['sid' => $sessionid]);
+        $msg = new stdClass();
         $msg->chatid = $info['chatid'];
         $msg->userid = $info['userid'];
         $msg->groupid = $info['groupid'];
@@ -827,7 +838,7 @@ EOD;
         $msg->message = 'exit';
         $msg->timestamp = time();
 
-        $this->trace('User has disconnected, destroying uid '.$info['userid'].' with SID '.$sessionid, E_USER_WARNING);
+        $this->trace('User has disconnected, destroying uid ' . $info['userid'] . ' with SID ' . $sessionid, E_USER_WARNING);
         chat_send_chatmessage($info['chatuser'], $msg->message, true);
 
         // IMPORTANT, kill him BEFORE broadcasting, otherwise we 'll get infinite recursion!
@@ -853,23 +864,23 @@ EOD;
         if (false === ($this->listen_socket = socket_create(AF_INET, SOCK_STREAM, 0))) {
             // Failed to create socket.
             $lasterr = socket_last_error();
-            $this->fatal('socket_create() failed: '. socket_strerror($lasterr).' ['.$lasterr.']');
+            $this->fatal('socket_create() failed: ' . socket_strerror($lasterr) . ' [' . $lasterr . ']');
         }
 
         if (!socket_bind($this->listen_socket, $CFG->chat_serverip, $CFG->chat_serverport)) {
             // Failed to bind socket.
             $lasterr = socket_last_error();
-            $this->fatal('socket_bind() failed: '. socket_strerror($lasterr).' ['.$lasterr.']');
+            $this->fatal('socket_bind() failed: ' . socket_strerror($lasterr) . ' [' . $lasterr . ']');
         }
 
         if (!socket_listen($this->listen_socket, $CFG->chat_servermax)) {
             // Failed to get socket to listen.
             $lasterr = socket_last_error();
-            $this->fatal('socket_listen() failed: '. socket_strerror($lasterr).' ['.$lasterr.']');
+            $this->fatal('socket_listen() failed: ' . socket_strerror($lasterr) . ' [' . $lasterr . ']');
         }
 
         // Socket has been initialized and is ready.
-        $this->trace('Socket opened on port '.$CFG->chat_serverport);
+        $this->trace('Socket opened on port ' . $CFG->chat_serverport);
 
         // What exactly does this do? http://www.unixguide.net/network/socketfaq/4.5.shtml is still not enlightening enough for me.
         socket_set_option($this->listen_socket, SOL_SOCKET, SO_REUSEADDR, 1);
@@ -877,7 +888,7 @@ EOD;
     }
 
     public function cli_switch($switch, $param = null) {
-        switch($switch) { // LOL!
+        switch ($switch) { // LOL!
             case 'reset':
                 // Reset sockets.
                 $this->_resetsocket = true;
@@ -899,21 +910,20 @@ EOD;
                 }
                 $this->_logfile = @fopen($this->_logfile_name, 'a+');
                 if ($this->_logfile == false) {
-                    $this->fatal('Failed to open '.$this->_logfile_name.' for writing');
+                    $this->fatal('Failed to open ' . $this->_logfile_name . ' for writing');
                 }
                 return false;
             default:
                 // Unrecognized.
-                $this->fatal('Unrecognized command line switch: '.$switch);
-            break;
+                $this->fatal('Unrecognized command line switch: ' . $switch);
+                break;
         }
         return false;
     }
-
 }
 
-$daemon = new ChatDaemon;
-set_error_handler(array($daemon, 'error_handler'));
+$daemon = new ChatDaemon();
+set_error_handler([$daemon, 'error_handler']);
 
 // Check the parameters.
 
@@ -933,12 +943,11 @@ if (strpos($commandline, '-') === false) {
     $numswitches = count($switches);
 
     // Fancy way to give a "hyphen" boolean flag to each "switch".
-    $switches = array_map(function($x) {
-        return array("str" => $x, "hyphen" => (substr($x, 0, 1) == "-"));
+    $switches = array_map(function ($x) {
+        return ["str" => $x, "hyphen" => (substr($x, 0, 1) == "-")];
     }, $switches);
 
     for ($i = 0; $i < $numswitches; ++$i) {
-
         $switch = $switches[$i]['str'];
         $params = ($i == $numswitches - 1 ? null :
                                             ($switches[$i + 1]['hyphen'] ? null : trim($switches[$i + 1]['str']))
@@ -960,7 +969,7 @@ if (strpos($commandline, '-') === false) {
 
 if (!$daemon->query_start()) {
     // For some reason we didn't start, so print out some info.
-    echo 'Starts the Moodle chat socket server on port '.$CFG->chat_serverport;
+    echo 'Starts the Moodle chat socket server on port ' . $CFG->chat_serverport;
     echo "\n\n";
     echo "Usage: chatd.php [parameters]\n\n";
     echo "Parameters:\n";
@@ -980,18 +989,18 @@ if (!function_exists('socket_set_option')) {
 
 $daemon->init_sockets();
 
-$daemon->trace('Started Moodle chatd on port '.$CFG->chat_serverport.', listening socket '.$daemon->listen_socket, E_USER_WARNING);
+$daemon->trace('Started Moodle chatd on port ' . $CFG->chat_serverport . ', listening socket ' . $daemon->listen_socket, E_USER_WARNING);
 
 // Clear the decks of old stuff.
-$DB->delete_records('chat_users', array('version' => 'sockets'));
+$DB->delete_records('chat_users', ['version' => 'sockets']);
 
 while (true) {
-    $active = array();
+    $active = [];
 
     // First of all, let's see if any of our UFOs have identified itself.
     if ($daemon->conn_activity_ufo($active)) {
         foreach ($active as $handle) {
-            $readsocket = array($handle);
+            $readsocket = [$handle];
             $write = null;
             $except = null;
             $changed = socket_select($readsocket, $write, $except, 0, 0);
@@ -1005,7 +1014,7 @@ while (true) {
                 }
 
                 if (strlen($data) == 2048) { // If socket_read has more data, ignore all data.
-                    $daemon->trace('UFO with '.$handle.': Data too long; connection closed', E_USER_WARNING);
+                    $daemon->trace('UFO with ' . $handle . ': Data too long; connection closed', E_USER_WARNING);
                     $daemon->dismiss_ufo($handle, true, 'Data too long; connection closed');
                     continue;
                 }
@@ -1018,7 +1027,7 @@ while (true) {
 
                 if (!preg_match('/win=(chat|users|message|beep).*&chat_sid=([a-zA-Z0-9]*) HTTP/', $data, $info)) {
                     // Malformed data.
-                    $daemon->trace('UFO with '.$handle.': Request with malformed data; connection closed', E_USER_WARNING);
+                    $daemon->trace('UFO with ' . $handle . ': Request with malformed data; connection closed', E_USER_WARNING);
                     $daemon->dismiss_ufo($handle, true, 'Request with malformed data; connection closed');
                     continue;
                 }
@@ -1026,9 +1035,9 @@ while (true) {
                 $type      = $info[1];
                 $sessionid = $info[2];
 
-                $customdata = array();
+                $customdata = [];
 
-                switch($type) {
+                switch ($type) {
                     case 'chat':
                         $type = CHAT_CONNECTION_CHANNEL;
                         $customdata['quirks'] = 0;
@@ -1036,10 +1045,10 @@ while (true) {
                             $daemon->trace('Safari identified...', E_USER_WARNING);
                             $customdata['quirks'] += QUIRK_CHUNK_UPDATE;
                         }
-                    break;
+                        break;
                     case 'users':
                         $type = CHAT_SIDEKICK_USERS;
-                    break;
+                        break;
                     case 'beep':
                         $type = CHAT_SIDEKICK_BEEP;
                         if (!preg_match('/beep=([^&]*)[& ]/', $data, $info)) {
@@ -1047,9 +1056,9 @@ while (true) {
                             $daemon->dismiss_ufo($handle, true, 'Request with malformed data; connection closed');
                             continue 2;
                         } else {
-                            $customdata = array('beep' => intval($info[1]));
+                            $customdata = ['beep' => intval($info[1])];
                         }
-                    break;
+                        break;
                     case 'message':
                         $type = CHAT_SIDEKICK_MESSAGE;
                         if (!preg_match('/chat_message=([^&]*)[& ]chat_msgidnr=([^&]*)[& ]/', $data, $info)) {
@@ -1057,11 +1066,11 @@ while (true) {
                             $daemon->dismiss_ufo($handle, true, 'Request with malformed data; connection closed');
                             continue 2;
                         } else {
-                            $customdata = array('message' => $info[1], 'index' => $info[2]);
+                            $customdata = ['message' => $info[1], 'index' => $info[2]];
                         }
-                    break;
+                        break;
                     default:
-                        $daemon->trace('UFO with '.$handle.': Request with unknown type; connection closed', E_USER_WARNING);
+                        $daemon->trace('UFO with ' . $handle . ': Request with unknown type; connection closed', E_USER_WARNING);
                         $daemon->dismiss_ufo($handle, true, 'Request with unknown type; connection closed');
                         continue 2;
                     break;
@@ -1089,4 +1098,3 @@ while (true) {
 
 @socket_shutdown($daemon->listen_socket, 0);
 die("\n\n-- terminated --\n");
-

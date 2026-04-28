@@ -48,7 +48,6 @@ use mod_chat\external\chat_message_exporter;
  * @since      Moodle 3.0
  */
 class mod_chat_external extends external_api {
-
     /**
      * Returns description of method parameters
      *
@@ -57,11 +56,15 @@ class mod_chat_external extends external_api {
      */
     public static function login_user_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'chatid' => new external_value(PARAM_INT, 'chat instance id'),
-                'groupid' => new external_value(PARAM_INT, 'group id, 0 means that the function will determine the user group',
-                                                VALUE_DEFAULT, 0),
-            )
+                'groupid' => new external_value(
+                    PARAM_INT,
+                    'group id, 0 means that the function will determine the user group',
+                    VALUE_DEFAULT,
+                    0
+                ),
+            ]
         );
     }
 
@@ -77,16 +80,18 @@ class mod_chat_external extends external_api {
     public static function login_user($chatid, $groupid = 0) {
         global $DB;
 
-        $params = self::validate_parameters(self::login_user_parameters(),
-                                            array(
+        $params = self::validate_parameters(
+            self::login_user_parameters(),
+            [
                                                 'chatid' => $chatid,
-                                                'groupid' => $groupid
-                                            ));
-        $warnings = array();
+                                                'groupid' => $groupid,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        $chat = $DB->get_record('chat', array('id' => $params['chatid']), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $params['chatid']], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -118,7 +123,7 @@ class mod_chat_external extends external_api {
             throw new moodle_exception('cantlogin', 'chat');
         }
 
-        $result = array();
+        $result = [];
         $result['chatsid'] = $chatsid;
         $result['warnings'] = $warnings;
         return $result;
@@ -132,10 +137,10 @@ class mod_chat_external extends external_api {
      */
     public static function login_user_returns() {
         return new external_single_structure(
-            array(
+            [
                 'chatsid' => new external_value(PARAM_ALPHANUM, 'unique chat session id'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -147,9 +152,9 @@ class mod_chat_external extends external_api {
      */
     public static function get_chat_users_parameters() {
         return new external_function_parameters(
-            array(
-                'chatsid' => new external_value(PARAM_ALPHANUM, 'chat session id (obtained via mod_chat_login_user)')
-            )
+            [
+                'chatsid' => new external_value(PARAM_ALPHANUM, 'chat session id (obtained via mod_chat_login_user)'),
+            ]
         );
     }
 
@@ -164,18 +169,20 @@ class mod_chat_external extends external_api {
     public static function get_chat_users($chatsid) {
         global $DB, $PAGE;
 
-        $params = self::validate_parameters(self::get_chat_users_parameters(),
-                                            array(
-                                                'chatsid' => $chatsid
-                                            ));
-        $warnings = array();
+        $params = self::validate_parameters(
+            self::get_chat_users_parameters(),
+            [
+                                                'chatsid' => $chatsid,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        if (!$chatuser = $DB->get_record('chat_users', array('sid' => $params['chatsid']))) {
+        if (!$chatuser = $DB->get_record('chat_users', ['sid' => $params['chatsid']])) {
             throw new moodle_exception('notlogged', 'chat');
         }
-        $chat = $DB->get_record('chat', array('id' => $chatuser->chatid), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $chatuser->chatid], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -186,22 +193,21 @@ class mod_chat_external extends external_api {
         chat_delete_old_users();
 
         $users = chat_get_users($chatuser->chatid, $chatuser->groupid, $cm->groupingid);
-        $returnedusers = array();
+        $returnedusers = [];
 
         foreach ($users as $user) {
-
             $userpicture = new user_picture($user);
             $userpicture->size = 1; // Size f1.
             $profileimageurl = $userpicture->get_url($PAGE)->out(false);
 
-            $returnedusers[] = array(
+            $returnedusers[] = [
                 'id' => $user->id,
                 'fullname' => fullname($user),
-                'profileimageurl' => $profileimageurl
-            );
+                'profileimageurl' => $profileimageurl,
+            ];
         }
 
-        $result = array();
+        $result = [];
         $result['users'] = $returnedusers;
         $result['warnings'] = $warnings;
         return $result;
@@ -215,19 +221,19 @@ class mod_chat_external extends external_api {
      */
     public static function get_chat_users_returns() {
         return new external_single_structure(
-            array(
+            [
                 'users' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'id' => new external_value(PARAM_INT, 'user id'),
                             'fullname' => new external_value(PARAM_NOTAGS, 'user full name'),
                             'profileimageurl' => new external_value(PARAM_URL, 'user picture URL'),
-                        )
+                        ]
                     ),
                     'list of users'
                 ),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -239,12 +245,12 @@ class mod_chat_external extends external_api {
      */
     public static function send_chat_message_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'chatsid' => new external_value(PARAM_ALPHANUM, 'chat session id (obtained via mod_chat_login_user)'),
                 'messagetext' => new external_value(PARAM_RAW, 'the message text'),
                 'beepid' => new external_value(PARAM_RAW, 'the beep id', VALUE_DEFAULT, ''),
 
-            )
+            ]
         );
     }
 
@@ -261,20 +267,22 @@ class mod_chat_external extends external_api {
     public static function send_chat_message($chatsid, $messagetext, $beepid = '') {
         global $DB;
 
-        $params = self::validate_parameters(self::send_chat_message_parameters(),
-                                            array(
+        $params = self::validate_parameters(
+            self::send_chat_message_parameters(),
+            [
                                                 'chatsid' => $chatsid,
                                                 'messagetext' => $messagetext,
-                                                'beepid' => $beepid
-                                            ));
-        $warnings = array();
+                                                'beepid' => $beepid,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        if (!$chatuser = $DB->get_record('chat_users', array('sid' => $params['chatsid']))) {
+        if (!$chatuser = $DB->get_record('chat_users', ['sid' => $params['chatsid']])) {
             throw new moodle_exception('notlogged', 'chat');
         }
-        $chat = $DB->get_record('chat', array('id' => $chatuser->chatid), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $chatuser->chatid], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -297,7 +305,7 @@ class mod_chat_external extends external_api {
             $messageid = 0;
         }
 
-        $result = array();
+        $result = [];
         $result['messageid'] = $messageid;
         $result['warnings'] = $warnings;
         return $result;
@@ -311,10 +319,10 @@ class mod_chat_external extends external_api {
      */
     public static function send_chat_message_returns() {
         return new external_single_structure(
-            array(
+            [
                 'messageid' => new external_value(PARAM_INT, 'message sent id'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -326,10 +334,10 @@ class mod_chat_external extends external_api {
      */
     public static function get_chat_latest_messages_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'chatsid' => new external_value(PARAM_ALPHANUM, 'chat session id (obtained via mod_chat_login_user)'),
-                'chatlasttime' => new external_value(PARAM_INT, 'last time messages were retrieved (epoch time)', VALUE_DEFAULT, 0)
-            )
+                'chatlasttime' => new external_value(PARAM_INT, 'last time messages were retrieved (epoch time)', VALUE_DEFAULT, 0),
+            ]
         );
     }
 
@@ -345,19 +353,21 @@ class mod_chat_external extends external_api {
     public static function get_chat_latest_messages($chatsid, $chatlasttime = 0) {
         global $DB, $CFG;
 
-        $params = self::validate_parameters(self::get_chat_latest_messages_parameters(),
-                                            array(
+        $params = self::validate_parameters(
+            self::get_chat_latest_messages_parameters(),
+            [
                                                 'chatsid' => $chatsid,
-                                                'chatlasttime' => $chatlasttime
-                                            ));
-        $warnings = array();
+                                                'chatlasttime' => $chatlasttime,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        if (!$chatuser = $DB->get_record('chat_users', array('sid' => $params['chatsid']))) {
+        if (!$chatuser = $DB->get_record('chat_users', ['sid' => $params['chatsid']])) {
             throw new moodle_exception('notlogged', 'chat');
         }
-        $chat = $DB->get_record('chat', array('id' => $chatuser->chatid), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $chatuser->chatid], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -381,7 +391,7 @@ class mod_chat_external extends external_api {
         }
 
         $messages = chat_get_latest_messages($chatuser, $chatlasttime);
-        $returnedmessages = array();
+        $returnedmessages = [];
 
         foreach ($messages as $message) {
             // FORMAT_MOODLE is mandatory in the chat plugin.
@@ -394,19 +404,19 @@ class mod_chat_external extends external_api {
                 0
             );
 
-            $returnedmessages[] = array(
+            $returnedmessages[] = [
                 'id' => $message->id,
                 'userid' => $message->userid,
                 'system' => (bool) $message->issystem,
                 'message' => $messageformatted,
                 'timestamp' => $message->timestamp,
-            );
+            ];
         }
 
         // Update our status since we are active in the chat.
-        $DB->set_field('chat_users', 'lastping', time(), array('id' => $chatuser->id));
+        $DB->set_field('chat_users', 'lastping', time(), ['id' => $chatuser->id]);
 
-        $result = array();
+        $result = [];
         $result['messages'] = $returnedmessages;
         $result['chatnewlasttime'] = $chatnewlasttime;
         $result['warnings'] = $warnings;
@@ -421,22 +431,22 @@ class mod_chat_external extends external_api {
      */
     public static function get_chat_latest_messages_returns() {
         return new external_single_structure(
-            array(
+            [
                 'messages' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'id' => new external_value(PARAM_INT, 'message id'),
                             'userid' => new external_value(PARAM_INT, 'user id'),
                             'system' => new external_value(PARAM_BOOL, 'true if is a system message (like user joined)'),
                             'message' => new external_value(PARAM_RAW, 'message text'),
                             'timestamp' => new external_value(PARAM_INT, 'timestamp for the message'),
-                        )
+                        ]
                     ),
                     'list of users'
                 ),
                 'chatnewlasttime' => new external_value(PARAM_INT, 'new last time'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -448,9 +458,9 @@ class mod_chat_external extends external_api {
      */
     public static function view_chat_parameters() {
         return new external_function_parameters(
-            array(
-                'chatid' => new external_value(PARAM_INT, 'chat instance id')
-            )
+            [
+                'chatid' => new external_value(PARAM_INT, 'chat instance id'),
+            ]
         );
     }
 
@@ -465,15 +475,17 @@ class mod_chat_external extends external_api {
     public static function view_chat($chatid) {
         global $DB, $CFG;
 
-        $params = self::validate_parameters(self::view_chat_parameters(),
-                                            array(
-                                                'chatid' => $chatid
-                                            ));
-        $warnings = array();
+        $params = self::validate_parameters(
+            self::view_chat_parameters(),
+            [
+                                                'chatid' => $chatid,
+            ]
+        );
+        $warnings = [];
 
         // Request and permission validation.
-        $chat = $DB->get_record('chat', array('id' => $params['chatid']), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $params['chatid']], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -483,7 +495,7 @@ class mod_chat_external extends external_api {
         // Call the url/lib API.
         chat_view($chat, $course, $cm, $context);
 
-        $result = array();
+        $result = [];
         $result['status'] = true;
         $result['warnings'] = $warnings;
         return $result;
@@ -497,10 +509,10 @@ class mod_chat_external extends external_api {
      */
     public static function view_chat_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'status: true if success'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -512,12 +524,15 @@ class mod_chat_external extends external_api {
      * @since Moodle 3.0
      */
     public static function get_chats_by_courses_parameters() {
-        return new external_function_parameters (
-            array(
+        return new external_function_parameters(
+            [
                 'courseids' => new external_multiple_structure(
-                    new external_value(PARAM_INT, 'course id'), 'Array of course ids', VALUE_DEFAULT, array()
+                    new external_value(PARAM_INT, 'course id'),
+                    'Array of course ids',
+                    VALUE_DEFAULT,
+                    []
                 ),
-            )
+            ]
         );
     }
 
@@ -529,15 +544,15 @@ class mod_chat_external extends external_api {
      * @return array of chats details
      * @since Moodle 3.0
      */
-    public static function get_chats_by_courses($courseids = array()) {
+    public static function get_chats_by_courses($courseids = []) {
         global $CFG;
 
-        $returnedchats = array();
-        $warnings = array();
+        $returnedchats = [];
+        $warnings = [];
 
-        $params = self::validate_parameters(self::get_chats_by_courses_parameters(), array('courseids' => $courseids));
+        $params = self::validate_parameters(self::get_chats_by_courses_parameters(), ['courseids' => $courseids]);
 
-        $courses = array();
+        $courses = [];
         if (empty($params['courseids'])) {
             $courses = enrol_get_my_courses();
             $params['courseids'] = array_keys($courses);
@@ -545,8 +560,7 @@ class mod_chat_external extends external_api {
 
         // Ensure there are courseids to loop through.
         if (!empty($params['courseids'])) {
-
-            list($courses, $warnings) = util::validate_courses($params['courseids'], $courses);
+            [$courses, $warnings] = util::validate_courses($params['courseids'], $courses);
 
             // Get the chats in this course, this function checks users visibility permissions.
             // We can avoid then additional validate_context calls.
@@ -570,7 +584,7 @@ class mod_chat_external extends external_api {
                 $returnedchats[] = $chatdetails;
             }
         }
-        $result = array();
+        $result = [];
         $result['chats'] = $returnedchats;
         $result['warnings'] = $warnings;
         return $result;
@@ -584,13 +598,16 @@ class mod_chat_external extends external_api {
      */
     public static function get_chats_by_courses_returns() {
         return new external_single_structure(
-            array(
+            [
                 'chats' => new external_multiple_structure(
                     new external_single_structure(array_merge(
                         helper_for_get_mods_by_courses::standard_coursemodule_elements_returns(),
                         [
-                            'chatmethod' => new external_value(PARAM_PLUGIN, 'chat method (sockets, ajax, header_js)',
-                                VALUE_OPTIONAL),
+                            'chatmethod' => new external_value(
+                                PARAM_PLUGIN,
+                                'chat method (sockets, ajax, header_js)',
+                                VALUE_OPTIONAL
+                            ),
                             'keepdays' => new external_value(PARAM_INT, 'keep days', VALUE_OPTIONAL),
                             'studentlogs' => new external_value(PARAM_INT, 'student logs visible to everyone', VALUE_OPTIONAL),
                             'chattime' => new external_value(PARAM_INT, 'chat time', VALUE_OPTIONAL),
@@ -600,7 +617,7 @@ class mod_chat_external extends external_api {
                     ), 'Chats')
                 ),
                 'warnings' => new external_warnings(),
-            )
+            ]
         );
     }
 
@@ -612,12 +629,12 @@ class mod_chat_external extends external_api {
      */
     public static function get_sessions_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'chatid' => new external_value(PARAM_INT, 'Chat instance id.'),
                 'groupid' => new external_value(PARAM_INT, 'Get messages from users in this group.
                                                 0 means that the function will determine the user group', VALUE_DEFAULT, 0),
                 'showall' => new external_value(PARAM_BOOL, 'Whether to show completed sessions or not.', VALUE_DEFAULT, false),
-            )
+            ]
         );
     }
 
@@ -634,17 +651,19 @@ class mod_chat_external extends external_api {
     public static function get_sessions($chatid, $groupid = 0, $showall = false) {
         global $DB;
 
-        $params = self::validate_parameters(self::get_sessions_parameters(),
-                                            array(
+        $params = self::validate_parameters(
+            self::get_sessions_parameters(),
+            [
                                                 'chatid' => $chatid,
                                                 'groupid' => $groupid,
                                                 'showall' => $showall,
-                                            ));
-        $sessions = $warnings = array();
+            ]
+        );
+        $sessions = $warnings = [];
 
         // Request and permission validation.
-        $chat = $DB->get_record('chat', array('id' => $params['chatid']), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $params['chatid']], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -677,19 +696,19 @@ class mod_chat_external extends external_api {
             $chatsessions = chat_get_sessions($messages, $params['showall']);
             // Format sessions for external.
             foreach ($chatsessions as $session) {
-                $sessionusers = array();
+                $sessionusers = [];
                 foreach ($session->sessionusers as $sessionuser => $usermessagecount) {
-                    $sessionusers[] = array(
+                    $sessionusers[] = [
                         'userid' => $sessionuser,
-                        'messagecount' => $usermessagecount
-                    );
+                        'messagecount' => $usermessagecount,
+                    ];
                 }
                 $session->sessionusers = $sessionusers;
                 $sessions[] = $session;
             }
         }
 
-        $result = array();
+        $result = [];
         $result['sessions'] = $sessions;
         $result['warnings'] = $warnings;
         return $result;
@@ -703,27 +722,28 @@ class mod_chat_external extends external_api {
      */
     public static function get_sessions_returns() {
         return new external_single_structure(
-            array(
+            [
                 'sessions' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'sessionstart' => new external_value(PARAM_INT, 'Session start time.'),
                             'sessionend' => new external_value(PARAM_INT, 'Session end time.'),
                             'sessionusers' => new external_multiple_structure(
                                 new external_single_structure(
-                                    array(
+                                    [
                                         'userid' => new external_value(PARAM_INT, 'User id.'),
                                         'messagecount' => new external_value(PARAM_INT, 'Number of messages in the session.'),
-                                    )
-                                ), 'Session users.'
+                                    ]
+                                ),
+                                'Session users.'
                             ),
                             'iscomplete' => new external_value(PARAM_BOOL, 'Whether the session is completed or not.'),
-                        )
+                        ]
                     ),
                     'list of users'
                 ),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -735,13 +755,13 @@ class mod_chat_external extends external_api {
      */
     public static function get_session_messages_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'chatid' => new external_value(PARAM_INT, 'Chat instance id.'),
                 'sessionstart' => new external_value(PARAM_INT, 'The session start time (timestamp).'),
                 'sessionend' => new external_value(PARAM_INT, 'The session end time (timestamp).'),
                 'groupid' => new external_value(PARAM_INT, 'Get messages from users in this group.
                                                 0 means that the function will determine the user group', VALUE_DEFAULT, 0),
-            )
+            ]
         );
     }
 
@@ -759,18 +779,20 @@ class mod_chat_external extends external_api {
     public static function get_session_messages($chatid, $sessionstart, $sessionend, $groupid = 0) {
         global $DB, $PAGE;
 
-        $params = self::validate_parameters(self::get_session_messages_parameters(),
-                                            array(
+        $params = self::validate_parameters(
+            self::get_session_messages_parameters(),
+            [
                                                 'chatid' => $chatid,
                                                 'sessionstart' => $sessionstart,
                                                 'sessionend' => $sessionend,
                                                 'groupid' => $groupid,
-                                            ));
-        $messages = $warnings = array();
+            ]
+        );
+        $messages = $warnings = [];
 
         // Request and permission validation.
-        $chat = $DB->get_record('chat', array('id' => $params['chatid']), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($chat, 'chat');
+        $chat = $DB->get_record('chat', ['id' => $params['chatid']], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($chat, 'chat');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
@@ -798,19 +820,24 @@ class mod_chat_external extends external_api {
             }
         }
 
-        $messages = chat_get_session_messages($chat->id, $groupid, $params['sessionstart'], $params['sessionend'],
-            'timestamp ASC');
+        $messages = chat_get_session_messages(
+            $chat->id,
+            $groupid,
+            $params['sessionstart'],
+            $params['sessionend'],
+            'timestamp ASC'
+        );
         if ($messages) {
             foreach ($messages as $message) {
-                $exporter = new chat_message_exporter($message, array('context' => $context));
+                $exporter = new chat_message_exporter($message, ['context' => $context]);
                 $returneditems[] = $exporter->export($PAGE->get_renderer('core'));
             }
         }
 
-        $result = array(
+        $result = [
             'messages' => $messages,
             'warnings' => $warnings,
-        );
+        ];
         return $result;
     }
 
@@ -822,12 +849,12 @@ class mod_chat_external extends external_api {
      */
     public static function get_session_messages_returns() {
         return new external_single_structure(
-            array(
+            [
                 'messages' => new external_multiple_structure(
                     chat_message_exporter::get_read_structure()
                 ),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 }

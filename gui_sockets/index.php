@@ -20,17 +20,17 @@ require_once('../lib.php');
 $id      = required_param('id', PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT); // Only for teachers.
 
-$url = new moodle_url('/mod/chat/gui_sockets/index.php', array('id' => $id));
+$url = new moodle_url('/mod/chat/gui_sockets/index.php', ['id' => $id]);
 if ($groupid !== 0) {
     $url->param('groupid', $groupid);
 }
 $PAGE->set_url($url);
 
-if (!$chat = $DB->get_record('chat', array('id' => $id))) {
+if (!$chat = $DB->get_record('chat', ['id' => $id])) {
     throw new \moodle_exception('invalidid', 'chat');
 }
 
-if (!$course = $DB->get_record('course', array('id' => $chat->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chat->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -48,9 +48,9 @@ if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being use
         if (!$group = groups_get_group($groupid)) {
             throw new \moodle_exception('invalidgroupid');
         }
-        $groupname = ': '.$group->name;
+        $groupname = ': ' . $group->name;
     } else {
-        $groupname = ': '.get_string('allparticipants');
+        $groupname = ': ' . get_string('allparticipants');
     }
 } else {
     $groupid = 0;
@@ -64,9 +64,9 @@ if (!$chatsid = chat_login_user($chat->id, 'sockets', $groupid, $course)) {
 }
 
 $params = "chat_sid=$chatsid";
-$courseshortname = format_string($course->shortname, true, array('context' => context_course::instance($course->id)));
+$courseshortname = format_string($course->shortname, true, ['context' => context_course::instance($course->id)]);
 
-$chatname = format_string($chat->name, true, array('context' => $context));
+$chatname = format_string($chat->name, true, ['context' => $context]);
 $winchaturl = "http://$CFG->chat_serverhost:$CFG->chat_serverport?win=chat&amp;$params";
 $winusersurl = "http://$CFG->chat_serverhost:$CFG->chat_serverport?win=users&amp;$params"
 

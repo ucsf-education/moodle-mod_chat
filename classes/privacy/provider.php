@@ -52,7 +52,6 @@ class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
-
     /**
      * Returns metadata.
      *
@@ -76,7 +75,7 @@ class provider implements
             'userid' => 'privacy:metadata:messages:userid',
             'message' => 'privacy:metadata:messages:message',
             'issystem' => 'privacy:metadata:messages:issystem',
-            'timestamp' => 'privacy:metadata:messages:timestamp'
+            'timestamp' => 'privacy:metadata:messages:timestamp',
         ], 'privacy:metadata:chat_messages_current');
 
         $collection->add_database_table('chat_users', [
@@ -86,7 +85,7 @@ class provider implements
             'firstping' => 'privacy:metadata:chat_users:firstping',
             'lastping' => 'privacy:metadata:chat_users:lastping',
             'lastmessageping' => 'privacy:metadata:chat_users:lastmessageping',
-            'lang' => 'privacy:metadata:chat_users:lang'
+            'lang' => 'privacy:metadata:chat_users:lang',
         ], 'privacy:metadata:chat_users');
 
         return $collection;
@@ -163,7 +162,7 @@ class provider implements
 
         $user = $contextlist->get_user();
         $userid = $user->id;
-        $cmids = array_reduce($contextlist->get_contexts(), function($carry, $context) {
+        $cmids = array_reduce($contextlist->get_contexts(), function ($carry, $context) {
             if ($context->contextlevel == CONTEXT_MODULE) {
                 $carry[] = $context->instanceid;
             }
@@ -177,10 +176,10 @@ class provider implements
         $chatids = array_keys($chatidstocmids);
 
         // Export the messages.
-        list($insql, $inparams) = $DB->get_in_or_equal($chatids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($chatids, SQL_PARAMS_NAMED);
         $params = array_merge($inparams, ['userid' => $userid]);
         $recordset = $DB->get_recordset_select('chat_messages', "chatid $insql AND userid = :userid", $params, 'timestamp, id');
-        static::recordset_loop_and_export($recordset, 'chatid', [], function($carry, $record) use ($user, $chatidstocmids) {
+        static::recordset_loop_and_export($recordset, 'chatid', [], function ($carry, $record) use ($user, $chatidstocmids) {
             $message = $record->message;
             if ($record->issystem) {
                 $message = get_string('message' . $record->message, 'mod_chat', fullname($user));
@@ -191,8 +190,7 @@ class provider implements
                 'is_system_generated' => transform::yesno($record->issystem),
             ];
             return $carry;
-
-        }, function($chatid, $data) use ($user, $chatidstocmids) {
+        }, function ($chatid, $data) use ($user, $chatidstocmids) {
             $context = context_module::instance($chatidstocmids[$chatid]);
             $contextdata = helper::get_context_data($context, $user);
             $finaldata = (object) array_merge((array) $contextdata, ['messages' => $data]);
@@ -233,7 +231,7 @@ class provider implements
         global $DB;
 
         $userid = $contextlist->get_user()->id;
-        $cmids = array_reduce($contextlist->get_contexts(), function($carry, $context) {
+        $cmids = array_reduce($contextlist->get_contexts(), function ($carry, $context) {
             if ($context->contextlevel == CONTEXT_MODULE) {
                 $carry[] = $context->instanceid;
             }
@@ -246,7 +244,7 @@ class provider implements
         $chatidstocmids = static::get_chat_ids_to_cmids_from_cmids($cmids);
         $chatids = array_keys($chatidstocmids);
 
-        list($insql, $inparams) = $DB->get_in_or_equal($chatids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($chatids, SQL_PARAMS_NAMED);
         $sql = "chatid $insql AND userid = :userid";
         $params = array_merge($inparams, ['userid' => $userid]);
 
@@ -268,7 +266,7 @@ class provider implements
         $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
         $chat = $DB->get_record('chat', ['id' => $cm->instance]);
 
-        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        [$userinsql, $userinparams] = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
         $params = array_merge(['chatid' => $chat->id], $userinparams);
         $sql = "chatid = :chatid AND userid {$userinsql}";
 
@@ -285,7 +283,7 @@ class provider implements
      */
     protected static function get_chat_ids_to_cmids_from_cmids(array $cmids) {
         global $DB;
-        list($insql, $inparams) = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
         $sql = "
             SELECT c.id, cm.id AS cmid
               FROM {chat} c
@@ -309,8 +307,13 @@ class provider implements
      * @param callable $export The function to export the dataset, receives the last value from $splitkey and the dataset.
      * @return void
      */
-    protected static function recordset_loop_and_export(moodle_recordset $recordset, $splitkey, $initial,
-            callable $reducer, callable $export) {
+    protected static function recordset_loop_and_export(
+        moodle_recordset $recordset,
+        $splitkey,
+        $initial,
+        callable $reducer,
+        callable $export
+    ) {
 
         $data = $initial;
         $lastid = null;
@@ -329,5 +332,4 @@ class provider implements
             $export($lastid, $data);
         }
     }
-
 }

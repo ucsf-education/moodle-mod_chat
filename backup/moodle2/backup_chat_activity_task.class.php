@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/mod/chat/backup/moodle2/backup_chat_stepslib.php'
  * Provides the steps to perform one complete backup of the Chat instance
  */
 class backup_chat_activity_task extends backup_activity_task {
-
     /**
      * No specific settings for this activity
      */
@@ -57,11 +56,11 @@ class backup_chat_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot . '/mod/chat', '#');
 
         // Link to the list of chats.
-        $pattern = "#(".$base."\/index.php\?id\=)([0-9]+)#";
+        $pattern = "#(" . $base . "\/index.php\?id\=)([0-9]+)#";
         $content = preg_replace($pattern, '$@CHATINDEX*$2@$', $content);
 
         // Link to chat view by moduleid.
-        $pattern = "#(".$base."\/view.php\?id\=)([0-9]+)#";
+        $pattern = "#(" . $base . "\/view.php\?id\=)([0-9]+)#";
         $content = preg_replace($pattern, '$@CHATVIEWBYID*$2@$', $content);
 
         return $content;

@@ -41,7 +41,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sessions_viewed extends \core\event\base {
-
     /**
      * Returns description of what happened.
      *
@@ -67,7 +66,7 @@ class sessions_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/chat/report.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/chat/report.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -98,7 +97,7 @@ class sessions_viewed extends \core\event\base {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'chat', 'restore' => 'chat');
+        return ['db' => 'chat', 'restore' => 'chat'];
     }
 
     public static function get_other_mapping() {

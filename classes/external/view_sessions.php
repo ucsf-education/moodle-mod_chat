@@ -85,8 +85,8 @@ class view_sessions extends external_api {
                 'objectid' => $chat->id,
                 'other'    => [
                     'start' => $start,
-                    'end'   => $end
-                ]
+                    'end'   => $end,
+                ],
             ];
             $event  = \mod_chat\event\sessions_viewed::create($params);
             $status = true;
@@ -96,13 +96,13 @@ class view_sessions extends external_api {
             $warnings[] = [
                 'item'        => $cm->id,
                 'warningcode' => 'nopermissiontoseethechatlog',
-                'message'     => get_string('nopermissiontoseethechatlog', 'chat')
+                'message'     => get_string('nopermissiontoseethechatlog', 'chat'),
             ];
         }
 
         $result = [
             'status'   => $status,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
         return $result;
     }
@@ -115,7 +115,7 @@ class view_sessions extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'status'   => new external_value(PARAM_BOOL, 'status: true if success'),
-            'warnings' => new external_warnings()
+            'warnings' => new external_warnings(),
         ]);
     }
 }

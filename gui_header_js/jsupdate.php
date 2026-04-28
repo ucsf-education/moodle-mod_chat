@@ -23,7 +23,7 @@ $chatsid      = required_param('chat_sid', PARAM_ALPHANUM);
 $chatlasttime = optional_param('chat_lasttime', 0, PARAM_INT);
 $chatlastrow  = optional_param('chat_lastrow', 1, PARAM_INT);
 
-$url = new moodle_url('/mod/chat/gui_header_js/jsupdate.php', array('chat_sid' => $chatsid));
+$url = new moodle_url('/mod/chat/gui_header_js/jsupdate.php', ['chat_sid' => $chatsid]);
 if ($chatlasttime !== 0) {
     $url->param('chat_lasttime', $chatlasttime);
 }
@@ -33,18 +33,18 @@ if ($chatlastrow !== 1) {
 $PAGE->set_url($url);
 
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new \moodle_exception('notlogged', 'chat');
 }
 
 // Get the minimal course.
-if (!$course = $DB->get_record('course', array('id' => $chatuser->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chatuser->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
 // Get the user theme and enough info to be used in chat_format_message() which passes it along to.
 // No optimisation here, it would break again in future!
-if (!$user = $DB->get_record('user', array('id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0))) {
+if (!$user = $DB->get_record('user', ['id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0])) {
     throw new \moodle_exception('invaliduser');
 }
 \core\session\manager::set_user($user);
@@ -70,13 +70,16 @@ if ($chatlasttime == 0) { // Display some previous messages.
 
 $timenow    = time();
 
-$params = array('groupid' => $chatuser->groupid, 'chatid' => $chatuser->chatid, 'lasttime' => $chatlasttime);
+$params = ['groupid' => $chatuser->groupid, 'chatid' => $chatuser->chatid, 'lasttime' => $chatlasttime];
 
 $groupselect = $chatuser->groupid ? " AND (groupid=:groupid OR groupid=0) " : "";
 
-$messages = $DB->get_records_select("chat_messages_current",
-                    "chatid = :chatid AND timestamp > :lasttime $groupselect", $params,
-                    "timestamp ASC");
+$messages = $DB->get_records_select(
+    "chat_messages_current",
+    "chatid = :chatid AND timestamp > :lasttime $groupselect",
+    $params,
+    "timestamp ASC"
+);
 
 if ($messages) {
     $num = count($messages);
@@ -92,7 +95,7 @@ $refreshurl = $baseurl . "chat_sid=$chatsid&chat_lasttime=$chatnewlasttime&chat_
 $refreshurlamp = $baseurl . "chat_sid=$chatsid&amp;chat_lasttime=$chatnewlasttime&amp;chat_lastrow=$chatnewrow";
 
 header('Expires: Sun, 28 Dec 1997 09:32:45 GMT');
-header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 header('Content-Type: text/html; charset=utf-8');
@@ -121,9 +124,8 @@ ob_start();
 <?php
 $beep = false;
 $refreshusers = false;
-$us = array ();
+$us = [];
 if (($chatlasttime != $chatnewlasttime) and $messages) {
-
     foreach ($messages as $message) {
         $chatlastrow = ($chatlastrow + 1) % 2;
         $formatmessage = chat_format_message($message, $chatuser->course, $USER, $chatlastrow);
@@ -135,12 +137,12 @@ if (($chatlasttime != $chatnewlasttime) and $messages) {
         }
         $us[$message->userid] = $timenow - $message->timestamp;
         echo "if(parent.msg)";
-        echo "parent.msg.document.write('".addslashes_js($formatmessage->html)."\\n');\n";
+        echo "parent.msg.document.write('" . addslashes_js($formatmessage->html) . "\\n');\n";
     }
 }
 
 $chatuser->lastping = time();
-$DB->set_field('chat_users', 'lastping', $chatuser->lastping, array('id' => $chatuser->id));
+$DB->set_field('chat_users', 'lastping', $chatuser->lastping, ['id' => $chatuser->id]);
 
 if ($refreshusers) {
 ?>
@@ -148,15 +150,15 @@ if ($refreshusers) {
         if (link != null) {
             parent.users.location.href = link.href;
         }
-<?php
+    <?php
 } else {
     foreach ($us as $uid => $lastping) {
         $min = (int) ($lastping / 60);
         $sec = $lastping - ($min * 60);
-        $min = $min < 10 ? '0'.$min : $min;
-        $sec = $sec < 10 ? '0'.$sec : $sec;
-        $idle = $min.':'.$sec;
-        echo "if (parent.users && parent.users.document.getElementById('uidle{$uid}') != null) {".
+        $min = $min < 10 ? '0' . $min : $min;
+        $sec = $sec < 10 ? '0' . $sec : $sec;
+        $idle = $min . ':' . $sec;
+        echo "if (parent.users && parent.users.document.getElementById('uidle{$uid}') != null) {" .
                 "parent.users.document.getElementById('uidle{$uid}').innerHTML = '$idle';}\n";
     }
 }
@@ -186,7 +188,7 @@ if ($beep) {
 <?php
 
 // Support HTTP Keep-Alive.
-header("Content-Length: " . ob_get_length() );
+header("Content-Length: " . ob_get_length());
 ob_end_flush();
 exit;
 

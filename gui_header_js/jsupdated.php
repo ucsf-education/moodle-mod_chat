@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /** jsupdated.php - notes by Martin Langhoff <martin@catalyst.net.nz>
- **
- ** This is an alternative version of jsupdate.php that acts
- ** as a long-running daemon. It will feed/stall/feed JS updates
- ** to the client. From the module configuration select "Stream"
- ** updates.
- **
- ** The client connection is not forever though. Once we reach
- ** CHAT_MAX_CLIENT_UPDATES, it will force the client to re-fetch it.
- **
- ** This buys us all the benefits that chatd has, minus the setup,
- ** as we are using apache to do the daemon handling.
- **
+ * *
+ * * This is an alternative version of jsupdate.php that acts
+ * * as a long-running daemon. It will feed/stall/feed JS updates
+ * * to the client. From the module configuration select "Stream"
+ * * updates.
+ * *
+ * * The client connection is not forever though. Once we reach
+ * * CHAT_MAX_CLIENT_UPDATES, it will force the client to re-fetch it.
+ * *
+ * * This buys us all the benefits that chatd has, minus the setup,
+ * * as we are using apache to do the daemon handling.
+ * *
  **/
 
 define('CHAT_MAX_CLIENT_UPDATES', 1000);
@@ -40,12 +40,12 @@ require_once('../lib.php');
 // Avoid being terminated by php.
 core_php_time_limit::raise();
 
-$chatsid      = required_param('chat_sid',          PARAM_ALPHANUM);
-$chatlasttime = optional_param('chat_lasttime',  0, PARAM_INT);
-$chatlastrow  = optional_param('chat_lastrow',   1, PARAM_INT);
-$chatlastid   = optional_param('chat_lastid',    0, PARAM_INT);
+$chatsid      = required_param('chat_sid', PARAM_ALPHANUM);
+$chatlasttime = optional_param('chat_lasttime', 0, PARAM_INT);
+$chatlastrow  = optional_param('chat_lastrow', 1, PARAM_INT);
+$chatlastid   = optional_param('chat_lastid', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/chat/gui_header_js/jsupdated.php', array('chat_sid' => $chatsid));
+$url = new moodle_url('/mod/chat/gui_header_js/jsupdated.php', ['chat_sid' => $chatsid]);
 if ($chatlasttime !== 0) {
     $url->param('chat_lasttime', $chatlasttime);
 }
@@ -57,19 +57,19 @@ if ($chatlastid !== 1) {
 }
 $PAGE->set_url($url);
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new \moodle_exception('notlogged', 'chat');
 }
 
 // Get the minimal course.
-if (!$course = $DB->get_record('course', array('id' => $chatuser->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chatuser->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
 // Get the user theme and enough info to be used in chat_format_message() which passes it along to
 // chat_format_message_manually() -- and only id and timezone are used.
 // No optimisation here, it would break again in future!
-if (!$user = $DB->get_record('user', array('id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0))) {
+if (!$user = $DB->get_record('user', ['id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0])) {
     throw new \moodle_exception('invaliduser');
 }
 \core\session\manager::set_user($user);
@@ -85,12 +85,12 @@ if ((time() - $chatlasttime) > $CFG->chat_old_ping) {
 
 // Time to send headers, and lay out the basic JS updater page.
 header('Expires: Sun, 28 Dec 1997 09:32:45 GMT');
-header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 header('Content-Type: text/html; charset=utf-8');
 
-$refreshurl = "{$CFG->wwwroot}/mod/chat/gui_header_js/jsupdated.php?".
+$refreshurl = "{$CFG->wwwroot}/mod/chat/gui_header_js/jsupdated.php?" .
               "chat_sid=$chatsid&chat_lasttime=$chatlasttime&chat_lastrow=$chatnewrow&chat_lastid=$chatlastid";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -116,13 +116,12 @@ $refreshurl = "{$CFG->wwwroot}/mod/chat/gui_header_js/jsupdated.php?".
 <?php
 
 // Ensure the HTML head makes it out there.
-echo $CHAT_DUMMY_DATA;
+echo $chatdummydata;
 
 for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
-
     // Ping first so we can later shortcut as needed.
     $chatuser->lastping = time();
-    $DB->set_field('chat_users', 'lastping', $chatuser->lastping, array('id' => $chatuser->id));
+    $DB->set_field('chat_users', 'lastping', $chatuser->lastping, ['id' => $chatuser->id]);
 
     if ($message = chat_get_latest_message($chatuser->chatid, $chatuser->groupid)) {
         $chatnewlasttime = $message->timestamp;
@@ -131,17 +130,17 @@ for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
         $chatnewlasttime = 0;
         $chatnewlastid   = 0;
         print " \n";
-        print $CHAT_DUMMY_DATA;
+        print $chatdummydata;
         sleep($CFG->chat_refresh_room);
         continue;
     }
 
     $timenow    = time();
 
-    $params = array('groupid' => $chatuser->groupid,
+    $params = ['groupid' => $chatuser->groupid,
                     'lastid' => $chatlastid,
                     'lasttime' => $chatlasttime,
-                    'chatid' => $chatuser->chatid);
+                    'chatid' => $chatuser->chatid];
     $groupselect = $chatuser->groupid ? " AND (groupid=:groupid OR groupid=0) " : "";
 
     $newcriteria = '';
@@ -154,15 +153,18 @@ for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
         $newcriteria = "timestamp > :lasttime";
     }
 
-    $messages = $DB->get_records_select("chat_messages_current",
-                                   "chatid = :chatid AND $newcriteria $groupselect", $params,
-                                   "timestamp ASC");
+    $messages = $DB->get_records_select(
+        "chat_messages_current",
+        "chatid = :chatid AND $newcriteria $groupselect",
+        $params,
+        "timestamp ASC"
+    );
 
     if ($messages) {
         $num = count($messages);
     } else {
         print " \n";
-        print $CHAT_DUMMY_DATA;
+        print $chatdummydata;
         sleep($CFG->chat_refresh_room);
         continue;
     }
@@ -173,9 +175,8 @@ for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
     $chatnewrow = ($chatlastrow + $num) % 2;
 
     $refreshusers = false;
-    $us = array ();
+    $us = [];
     if (($chatlasttime != $chatnewlasttime) and $messages) {
-
         $beep         = false;
         $refreshusers = false;
         foreach ($messages as $message) {
@@ -188,8 +189,7 @@ for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
                 $refreshusers = true;
             }
             $us[$message->userid] = $timenow - $message->timestamp;
-            echo "parent.msg.document.write('".addslashes_js($formatmessage->html )."\\n');\n";
-
+            echo "parent.msg.document.write('" . addslashes_js($formatmessage->html) . "\\n');\n";
         }
         // From the last message printed.
         // A strange case where lack of closures is useful!
@@ -204,10 +204,10 @@ for ($n = 0; $n <= CHAT_MAX_CLIENT_UPDATES; $n++) {
         foreach ($us as $uid => $lastping) {
             $min = (int) ($lastping / 60);
             $sec = $lastping - ($min * 60);
-            $min = $min < 10 ? '0'.$min : $min;
-            $sec = $sec < 10 ? '0'.$sec : $sec;
-            $idle = $min.':'.$sec;
-            echo "if (parent.users.document.getElementById('uidle{$uid}') != null) {".
+            $min = $min < 10 ? '0' . $min : $min;
+            $sec = $sec < 10 ? '0' . $sec : $sec;
+            $idle = $min . ':' . $sec;
+            echo "if (parent.users.document.getElementById('uidle{$uid}') != null) {" .
                     "parent.users.document.getElementById('uidle{$uid}').innerHTML = '$idle';}\n";
         }
     }
@@ -229,7 +229,7 @@ EOD;
         print 'audioElement.play(); })();';
         print '</script>';
     }
-    print $CHAT_DUMMY_DATA;
+    print $chatdummydata;
     sleep($CFG->chat_refresh_room);
 } // Here ends the for() loop.
 

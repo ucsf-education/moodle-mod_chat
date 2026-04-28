@@ -15,13 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    //  It must be included from a Moodle page.
+    die('Direct access to this script is forbidden.');    // It must be included from a Moodle page.
 }
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 class mod_chat_mod_form extends moodleform_mod {
-
     /**
      * Define the chat activity settings form
      */
@@ -32,7 +31,7 @@ class mod_chat_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'name', get_string('chatname', 'chat'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('chatname', 'chat'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -48,14 +47,14 @@ class mod_chat_mod_form extends moodleform_mod {
 
         $mform->addElement('date_time_selector', 'chattime', get_string('chattime', 'chat'));
 
-        $options = array();
+        $options = [];
         $options[0]  = get_string('donotusechattime', 'chat');
         $options[1]  = get_string('repeatnone', 'chat');
         $options[2]  = get_string('repeatdaily', 'chat');
         $options[3]  = get_string('repeatweekly', 'chat');
         $mform->addElement('select', 'schedule', get_string('repeattimes', 'chat'), $options);
 
-        $options = array();
+        $options = [];
         $options[0]    = get_string('neverdeletemessages', 'chat');
         $options[365]  = get_string('numdays', '', 365);
         $options[180]  = get_string('numdays', '', 180);

@@ -44,11 +44,11 @@ class chat_portfolio_caller extends portfolio_module_caller_base {
      * @return array
      */
     public static function expected_callbackargs() {
-        return array(
+        return [
             'id'    => true,
             'start' => false,
             'end'   => false,
-        );
+        ];
     }
     /**
      * @global object
@@ -59,20 +59,20 @@ class chat_portfolio_caller extends portfolio_module_caller_base {
         if (!$this->cm = get_coursemodule_from_id('chat', $this->id)) {
             throw new portfolio_caller_exception('invalidid', 'chat');
         }
-        $this->chat = $DB->get_record('chat', array('id' => $this->cm->instance));
+        $this->chat = $DB->get_record('chat', ['id' => $this->cm->instance]);
         $select = 'chatid = ?';
-        $params = array($this->chat->id);
+        $params = [$this->chat->id];
         if ($this->start && $this->end) {
             $select .= ' AND timestamp >= ? AND timestamp <= ?';
             $params[] = $this->start;
             $params[] = $this->end;
         }
         $this->messages = $DB->get_records_select(
-                'chat_messages',
-                $select,
-                $params,
-                'timestamp ASC'
-            );
+            'chat_messages',
+            $select,
+            $params,
+            'timestamp ASC'
+        );
         $select .= ' AND userid = ?';
         $params[] = $this->user->id;
         $this->participated = $DB->record_exists_select(
@@ -85,7 +85,7 @@ class chat_portfolio_caller extends portfolio_module_caller_base {
      * @return array
      */
     public static function base_supported_formats() {
-        return array(PORTFOLIO_FORMAT_PLAINHTML);
+        return [PORTFOLIO_FORMAT_PLAINHTML];
     }
     /**
      *
@@ -166,7 +166,6 @@ class chat_portfolio_caller extends portfolio_module_caller_base {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class event_message implements renderable {
-
     /** @var string The URL of the profile of the user who caused the event */
     public $senderprofile;
 
@@ -208,7 +207,6 @@ class event_message implements renderable {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user_message implements renderable {
-
     /** @var string The URL of the profile of the user sending the message */
     public $senderprofile;
 

@@ -17,26 +17,26 @@
 define('NO_MOODLE_COOKIES', true); // Session not used here.
 
 require_once('../../../config.php');
-require_once($CFG->dirroot.'/mod/chat/lib.php');
+require_once($CFG->dirroot . '/mod/chat/lib.php');
 
 $chatsid   = required_param('chat_sid', PARAM_ALPHANUM);
 $beep       = optional_param('beep', 0, PARAM_INT);  // Beep target.
 
-$PAGE->set_url('/mod/chat/gui_header_js/users.php', array('chat_sid' => $chatsid));
+$PAGE->set_url('/mod/chat/gui_header_js/users.php', ['chat_sid' => $chatsid]);
 $PAGE->set_popup_notification_allowed(false);
 
-if (!$chatuser = $DB->get_record('chat_users', array('sid' => $chatsid))) {
+if (!$chatuser = $DB->get_record('chat_users', ['sid' => $chatsid])) {
     throw new \moodle_exception('notlogged', 'chat');
 }
 
 // Get the minimal course.
-if (!$course = $DB->get_record('course', array('id' => $chatuser->course))) {
+if (!$course = $DB->get_record('course', ['id' => $chatuser->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
 // Get the user theme and enough info to be used in chat_format_message() which passes it along to.
 // No optimisation here, it would break again in future!
-if (!$user = $DB->get_record('user', array('id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0))) {
+if (!$user = $DB->get_record('user', ['id' => $chatuser->userid, 'deleted' => 0, 'suspended' => 0])) {
     throw new \moodle_exception('invaliduser');
 }
 \core\session\manager::set_user($user);
@@ -58,7 +58,7 @@ if ($beep) {
 }
 
 $chatuser->lastping = time();
-$DB->set_field('chat_users', 'lastping', $chatuser->lastping, array('id' => $chatuser->id));
+$DB->set_field('chat_users', 'lastping', $chatuser->lastping, ['id' => $chatuser->id]);
 
 $refreshurl = "users.php?chat_sid=$chatsid";
 
@@ -68,17 +68,17 @@ if (!$chatusers = chat_get_users($chatuser->chatid, $chatuser->groupid, $cm->gro
     throw new \moodle_exception('errornousers', 'chat');
 }
 
-$uidles = Array();
+$uidles = [];
 foreach ($chatusers as $chatuser) {
     $uidles[] = $chatuser->id;
 }
 
-$module = array(
+$module = [
     'name'      => 'mod_chat_header',
     'fullpath'  => '/mod/chat/gui_header_js/module.js',
-    'requires'  => array('node')
-);
-$PAGE->requires->js_init_call('M.mod_chat_header.init_users', array($uidles), false, $module);
+    'requires'  => ['node'],
+];
+$PAGE->requires->js_init_call('M.mod_chat_header.init_users', [$uidles], false, $module);
 
 // Print user panel body.
 $timenow    = time();
@@ -87,27 +87,34 @@ $strbeep    = get_string('beep', 'chat');
 
 $table = new html_table();
 $table->width = '100%';
-$table->data = array();
+$table->data = [];
 foreach ($chatusers as $chatuser) {
     $lastping = $timenow - $chatuser->lastmessageping;
     $min = (int) ($lastping / 60);
     $sec = $lastping - ($min * 60);
-    $min = $min < 10 ? '0'.$min : $min;
-    $sec = $sec < 10 ? '0'.$sec : $sec;
-    $idle = $min.':'.$sec;
+    $min = $min < 10 ? '0' . $min : $min;
+    $sec = $sec < 10 ? '0' . $sec : $sec;
+    $idle = $min . ':' . $sec;
 
-    $row = array();
-    $row[0] = $OUTPUT->user_picture($chatuser, array('courseid' => $courseid, 'popup' => true));
+    $row = [];
+    $row[0] = $OUTPUT->user_picture($chatuser, ['courseid' => $courseid, 'popup' => true]);
     $row[1]  = html_writer::start_tag('p');
-    $row[1] .= html_writer::start_tag('font', array('size' => '1'));
-    $row[1] .= fullname($chatuser).'<br />';
-    $row[1] .= html_writer::tag('span', $stridle . html_writer::tag('span',
-                                                                    $idle,
-                                                                    array('name' => 'uidles', 'id' => 'uidle'.$chatuser->id)),
-                                array('class' => 'dimmed_text')) . ' ';
-    $row[1] .= html_writer::tag('a', $strbeep, array('href' => new moodle_url('/mod/chat/gui_header_js/users.php',
-                                                                              array('chat_sid' => $chatsid,
-                                                                              'beep' => $chatuser->id))));
+    $row[1] .= html_writer::start_tag('font', ['size' => '1']);
+    $row[1] .= fullname($chatuser) . '<br />';
+    $row[1] .= html_writer::tag(
+        'span',
+        $stridle . html_writer::tag(
+            'span',
+            $idle,
+            ['name' => 'uidles', 'id' => 'uidle' . $chatuser->id]
+        ),
+        ['class' => 'dimmed_text']
+    ) . ' ';
+    $row[1] .= html_writer::tag('a', $strbeep, ['href' => new moodle_url(
+        '/mod/chat/gui_header_js/users.php',
+        ['chat_sid' => $chatsid,
+        'beep' => $chatuser->id]
+    )]);
     $row[1] .= html_writer::end_tag('font');
     $row[1] .= html_writer::end_tag('p');
     $table->data[] = $row;
@@ -115,8 +122,11 @@ foreach ($chatusers as $chatuser) {
 
 ob_start();
 echo $OUTPUT->header();
-echo html_writer::tag('div', html_writer::tag('a', get_string('refresh'),
-        array('href' => $refreshurl, 'id' => 'refreshLink')), array('style' => 'display:none'));
+echo html_writer::tag('div', html_writer::tag(
+    'a',
+    get_string('refresh'),
+    ['href' => $refreshurl, 'id' => 'refreshLink']
+), ['style' => 'display:none']);
 echo html_writer::table($table);
 echo $OUTPUT->footer();
 
@@ -133,9 +143,8 @@ echo $OUTPUT->footer();
 // wastes server resources keeping an apache child around on a
 // connection that will timeout. So we don't.
 if ($CFG->chat_refresh_userlist < 15) {
-    header("Content-Length: " . ob_get_length() );
+    header("Content-Length: " . ob_get_length());
     ob_end_flush();
 }
 
 exit; // No further output.
-
