@@ -66,7 +66,7 @@ class externallib_test extends externallib_advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         $cm = get_coursemodule_from_instance('chat', $chat->id, $course->id);
-        $result = mod_chat_external::login_user($cm->id);
+        $result = mod_chat_external::login_user($chat->id);
         $result = external_api::clean_returnvalue(mod_chat_external::login_user_returns(), $result);
 
         // Test session started.
