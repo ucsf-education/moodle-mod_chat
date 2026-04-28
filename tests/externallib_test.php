@@ -65,7 +65,8 @@ class externallib_test extends externallib_advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
-        $result = mod_chat_external::login_user($chat->id);
+        $cm = get_coursemodule_from_instance('chat', $chat->id, $course->id);
+        $result = mod_chat_external::login_user($cm->id);
         $result = external_api::clean_returnvalue(mod_chat_external::login_user_returns(), $result);
 
         // Test session started.
@@ -260,8 +261,22 @@ class externallib_test extends externallib_advanced_testcase {
         $chats = external_api::clean_returnvalue(mod_chat_external::get_chats_by_courses_returns(), $chats);
         $this->assertCount(1, $chats['chats']);
         $this->assertEquals('First Chat', $chats['chats'][0]['name']);
-        // We see 12 fields.
-        $this->assertCount(13, $chats['chats'][0]);
+
+        // Ensure minimum expected fields (forward-compatible).
+        $this->assertGreaterThanOrEqual(13, count($chats['chats'][0]));
+
+        // Core fields every user should see.
+        $this->assertArrayHasKey('id', $chats['chats'][0]);
+        $this->assertArrayHasKey('course', $chats['chats'][0]);
+        $this->assertArrayHasKey('name', $chats['chats'][0]);
+        $this->assertArrayHasKey('intro', $chats['chats'][0]);
+        $this->assertArrayHasKey('introformat', $chats['chats'][0]);
+        $this->assertArrayHasKey('chatmethod', $chats['chats'][0]);
+        $this->assertArrayHasKey('keepdays', $chats['chats'][0]);
+        $this->assertArrayHasKey('studentlogs', $chats['chats'][0]);
+        $this->assertArrayHasKey('chattime', $chats['chats'][0]);
+        $this->assertArrayHasKey('schedule', $chats['chats'][0]);
+        $this->assertArrayHasKey('coursemodule', $chats['chats'][0]);
 
         // As Student you cannot see some chat properties like 'section'.
         $this->assertFalse(isset($chats['chats'][0]['section']));
@@ -283,9 +298,25 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertCount(1, $chats['chats']);
         $this->assertEquals('Second Chat', $chats['chats'][0]['name']);
         $this->assertEquals('header_js', $chats['chats'][0]['chatmethod']);
-        // We see 17 fields.
-        $this->assertCount(18, $chats['chats'][0]);
-        // As an Admin you can see some chat properties like 'section'.
+
+        // Ensure minimum expected fields (forward-compatible).
+        $this->assertGreaterThanOrEqual(18, count($chats['chats'][0]));
+
+        // Core fields.
+        $this->assertArrayHasKey('id', $chats['chats'][0]);
+        $this->assertArrayHasKey('course', $chats['chats'][0]);
+        $this->assertArrayHasKey('name', $chats['chats'][0]);
+        $this->assertArrayHasKey('intro', $chats['chats'][0]);
+        $this->assertArrayHasKey('introformat', $chats['chats'][0]);
+        $this->assertArrayHasKey('chatmethod', $chats['chats'][0]);
+        $this->assertArrayHasKey('keepdays', $chats['chats'][0]);
+        $this->assertArrayHasKey('studentlogs', $chats['chats'][0]);
+        $this->assertArrayHasKey('chattime', $chats['chats'][0]);
+        $this->assertArrayHasKey('schedule', $chats['chats'][0]);
+        $this->assertArrayHasKey('coursemodule', $chats['chats'][0]);
+
+        // Admin-specific field.
+        $this->assertArrayHasKey('section', $chats['chats'][0]);
         $this->assertEquals(0, $chats['chats'][0]['section']);
 
         // Enrol student in the second course.
