@@ -130,6 +130,13 @@ final class format_message_test extends \advanced_testcase {
 
     /**
      * @dataProvider chat_format_message_manually_provider
+     *
+     * @param string $messagetext
+     * @param bool $issystem
+     * @param bool $willreturn
+     * @param string|null $expecttext
+     * @param bool $refreshusers
+     * @param bool $expectbeep
      */
     public function test_chat_format_message_manually(
         $messagetext,
