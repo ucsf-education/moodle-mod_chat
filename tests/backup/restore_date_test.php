@@ -36,13 +36,23 @@ class restore_date_test extends \restore_date_testcase {
         global $DB;
 
         list($course, $chat) = $this->create_course_and_module('chat');
-        $result = \mod_chat_external::login_user($chat->id);
-        $result = external_api::clean_returnvalue(\mod_chat_external::login_user_returns(), $result);
-        $chatsid = $result['chatsid'];
 
-        $result = \mod_chat_external::send_chat_message($chatsid, 'hello!');
-        $result = external_api::clean_returnvalue(\mod_chat_external::send_chat_message_returns(), $result);
-        $message = $DB->get_record('chat_messages', ['id' => $result['messageid']]);
+        // Create a user and enrol them.
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+
+        // Insert a chat message directly.
+        $message = (object)[
+            'chatid' => $chat->id,
+            'userid' => $user->id,
+            'groupid' => 0,
+            'system' => 0,
+            'message' => 'hello!',
+            'timestamp' => time(),
+        ];
+
+        $message->id = $DB->insert_record('chat_messages', $message);
+
         $timestamp = 1000;
         $DB->set_field('chat_messages', 'timestamp', $timestamp);
 
