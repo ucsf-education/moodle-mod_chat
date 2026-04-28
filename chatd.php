@@ -90,12 +90,11 @@ class ChatDaemon {
     public $_logfile_name      = 'chatd.log';
     public $_last_idle_poll    = 0;
 
-    public $connectionsunidentified  = array(); // Connections not identified yet.
-    public $connectionsside = array(); // Sessions with sidekicks waiting for the main connection to be processed.
-    public $connectionshalf = array(); // Sessions that have valid connections but not all of them.
-    public $connectionssets = array(); // Sessions with complete connection sets.
-    public $setsinfo = array(); // Keyed by sessionid exactly like conn_sets, one of these for each of those.
-    public $chatrooms = array(); // Keyed by chatid, holding arrays of data.
+    public $connectionsunidentified  = []; // Connections not identified yet.
+    public $connectionsside = []; // Sessions with sidekicks waiting for the main connection to be processed.
+    public $connectionshalf = []; // Sessions that have valid connections but not all of them.
+    public $connectionssets = []; // Sessions with complete connection sets.
+    public $chatrooms = []; // Keyed by chatid, holding arrays of data.
 
     /** @var int error reporting level. */
     public $_trace_level;
@@ -119,7 +118,7 @@ class ChatDaemon {
     public $_stdout;
 
     /** @var array user data with session ID as the key. */
-    public $sets_info = [];
+    public $setsinfo = []; // Keyed by sessionid exactly like conn_sets, one of these for each of those.
 
     /** @var array connection data with session ID as the key. */
     public $conn_sets = [];
