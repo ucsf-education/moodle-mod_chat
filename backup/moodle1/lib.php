@@ -38,7 +38,7 @@ class moodle1_mod_chat_handler extends moodle1_mod_handler {
     /**
      * Declare the paths in moodle.xml we are able to convert
      *
-     * The method returns list of {@link convert_path} instances.
+     * The method returns list of convert_path instances.
      * For each path returned, the corresponding conversion method must be
      * defined.
      *
@@ -46,7 +46,8 @@ class moodle1_mod_chat_handler extends moodle1_mod_handler {
      * actually exist in the file. The last element with the module name was
      * appended by the moodle1_converter class.
      *
-     * @return array of {@link convert_path} instances
+     * @return convert_path[]
+     * @see convert_path
      */
     public function get_paths() {
         return [
@@ -65,6 +66,9 @@ class moodle1_mod_chat_handler extends moodle1_mod_handler {
     /**
      * This is executed every time we have one /MOODLE_BACKUP/COURSE/MODULES/MOD/CHAT
      * data available
+     *
+     * @param array $data
+     * @return array
      */
     public function process_chat($data) {
         global $CFG;
@@ -107,8 +111,11 @@ class moodle1_mod_chat_handler extends moodle1_mod_handler {
     }
 
     /**
-     * This is executed every time we have one /MOODLE_BACKUP/COURSE/MODULES/MOD/CHAT/MESSAGES/MESSAGE
-     * data available
+     * This is executed every time we have one
+     * /MOODLE_BACKUP/COURSE/MODULES/MOD/CHAT/MESSAGES/MESSAGE data available
+     *
+     * @param array $data
+     * @return void
      */
     public function process_chat_message($data) {
         // MDL-46466 - Should this be empty?

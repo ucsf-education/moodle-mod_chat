@@ -187,6 +187,7 @@ class event_message implements renderable {
      * @param string $senderprofile The URL of the profile of the user who caused the event
      * @param string $sendername The ready to display name of the user who caused the event
      * @param string $time Ready to display event time
+     * @param string $event The event message/content
      * @param string $theme The chat theme name
      */
     public function __construct($senderprofile, $sendername, $time, $event, $theme) {
